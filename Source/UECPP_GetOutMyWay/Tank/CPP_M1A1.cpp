@@ -43,6 +43,7 @@ void ACPP_M1A1::BeginPlay()
 void ACPP_M1A1::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	CamPitchLimitSmooth();
 }
 
 void ACPP_M1A1::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -61,6 +62,21 @@ void ACPP_M1A1::OnVerticalLook(float value)
 void ACPP_M1A1::OnHorizontalLook(float value)
 {
 	AddControllerYawInput(value * BasicCamTurnSpeed * GetWorld()->DeltaTimeSeconds);
+}
+
+void ACPP_M1A1::CamPitchLimitSmooth()
+{
+	float pitch = Controller->GetControlRotation().Pitch;
+	float limitVal = 0;
+	if (pitch < PitchLimitMin || PitchLimitMax < pitch)
+	{//범위를 벗어난 상태
+		pitch=FMath::ClampAngle(pitch, PitchLimitMin, PitchLimitMax);
+		
+		//범위에 맞는 값을 넣어준다
+		FRotator temp = FRotator(pitch, GetControlRotation().Yaw, GetControlRotation().Roll);
+		Controller->SetControlRotation(temp);
+	}
+
 }
 
 void ACPP_M1A1::OnMoveForward(float value)

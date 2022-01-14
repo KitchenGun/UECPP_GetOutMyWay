@@ -29,6 +29,7 @@ public:
 private:
 	void OnVerticalLook(float value);
 	void OnHorizontalLook(float value);
+	void CamPitchLimitSmooth();
 
 	void OnMoveForward(float value);
 	void OnMoveTurn(float value);
@@ -38,6 +39,8 @@ private:
 	
 	float CamRange = 800;
 	float BasicCamTurnSpeed = 100;
+	float PitchLimitMax=360;
+	float PitchLimitMin=270;
 
 	//Engine
 	bool IsForward = true;
