@@ -18,6 +18,7 @@ ACPP_M1A1::ACPP_M1A1()
 	SpringArm->SetupAttachment(GetMesh());
 	Camera = CreateDefaultSubobject<UCameraComponent>(L"Camera");
 	Camera->SetupAttachment(SpringArm);
+
 	/*객체 초기화*/
 	bUseControllerRotationYaw = false;
 	//mesh
@@ -33,6 +34,10 @@ ACPP_M1A1::ACPP_M1A1()
 	//engine
 	ConstructorHelpers::FObjectFinder<UCurveFloat> Curvefloat(L"CurveFloat'/Game/Curve/EngineTorque.EngineTorque'");
 	EngineTorqueCurve = Curvefloat.Object;
+	//CharacterMovementComponent
+	//미끄러지도록 변경
+	GetCharacterMovement()->GroundFriction = 1;				//지면과의 마찰강도 설정
+	GetCharacterMovement()->BrakingDecelerationWalking = 350;//값이 클수록 감속량이 빨라짐
 }
 
 void ACPP_M1A1::BeginPlay()
@@ -44,6 +49,7 @@ void ACPP_M1A1::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	CamPitchLimitSmooth();
+	RPMControl();
 }
 
 void ACPP_M1A1::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -87,39 +93,67 @@ void ACPP_M1A1::OnMoveForward(float value)
 	//토크는 가속력을 의미한다
 	if (value > 0)
 	{
-		IsForward = true;
+		IsMoveForward = true;
 		IsAccelerating = true;
-		GetCharacterMovement()->MaxWalkSpeed = 600;
 	}
 	else if(FMath::IsNearlyZero(value))
 	{
 		IsAccelerating = false;
-		RPM = IdleRPM;
 	}
 	else
 	{
-		IsForward = false;
+		IsMoveForward = false;
 		IsAccelerating = true;
-		GetCharacterMovement()->MaxWalkSpeed = 400;
 	}
-
 
 	if (IsAccelerating)
 	{
-
-		AddMovementInput(GetMesh()->GetForwardVector(), value*500*GetWorld()->DeltaTimeSeconds);
+		GetCharacterMovement()->MaxWalkSpeed = EngineTorque * (RPM*0.0005f);
+		AddMovementInput(GetMesh()->GetForwardVector(), value*EngineTorque*GetWorld()->DeltaTimeSeconds);
 	}
-
+	
+	auto temp = GetVelocity().Size();
+	UE_LOG(LogTemp, Display, L"speed :: %.2f", temp);
+	UE_LOG(LogTemp, Display, L"Torque:: %.2f", EngineTorque);
+	UE_LOG(LogTemp, Display, L"RPM   :: %.2f", RPM);
 }
 
 void ACPP_M1A1::OnMoveTurn(float value)
 {
+
 }
 
 void ACPP_M1A1::OnEngineBreak()
 {
 	IsAccelerating = false;
+}
 
+void ACPP_M1A1::RPMControl()
+{
+	if (BeforeIsMoveForward != IsMoveForward)
+	{//전진과 후진에 따른 기어변속의 영향을 RPM이 받음
+		RPM = (RPM - 700) >= IdleRPM ? RPM - 700 : IdleRPM*0.7f;
+	}
+	BeforeIsMoveForward = IsMoveForward;
+	if (IsAccelerating)
+	{
+		//가속시 RPM증가
+		if (MaxRPM > RPM)
+		{
+			RPM += (300 * GetWorld()->DeltaTimeSeconds);
+		}
+	}
+	else
+	{
+		//가속이 멈출경우 RPM감소
+		RPM -= (100 * GetWorld()->DeltaTimeSeconds);
+		if (RPM <= IdleRPM)
+		{
+			RPM = 500;
+		}
+	}
+	//구한 rpm 값으로 엔진토크 설정
+	EngineTorque = EngineTorqueCurve->GetFloatValue(RPM);
 }
 
 

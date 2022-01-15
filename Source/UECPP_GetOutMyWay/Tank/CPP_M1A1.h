@@ -34,23 +34,25 @@ private:
 	void OnMoveForward(float value);
 	void OnMoveTurn(float value);
 	void OnEngineBreak();
-
+	void RPMControl();
 private:
 	
 	float CamRange = 800;
 	float BasicCamTurnSpeed = 100;
 	float PitchLimitMax=360;
 	float PitchLimitMin=270;
-
+	//characterMovement
+	float IdleGroundFriction = 8.0f;
+	float IdleBrakingDecelerationWalking = 2048.0f;
 	//Engine
-	bool IsForward = true;
+	bool IsMoveForward = true;
+	bool BeforeIsMoveForward = true;
 	float EngineTorque = 0.0f;
 	int EngineGear = 0;
 	float RPM = 500;
 	float IdleRPM = 500;
-	float MaxRPM = 6000;
+	float MaxRPM = 3000;
 	bool IsAccelerating = false;
-	float AccelerationFactor = 6000.0f;
 	FVector CurrentVelocity = FVector::ZeroVector;
 	class UCurveFloat* EngineTorqueCurve;
 
