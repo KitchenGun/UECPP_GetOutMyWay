@@ -35,21 +35,26 @@ ACPP_M1A1::ACPP_M1A1()
 	ConstructorHelpers::FObjectFinder<UCurveFloat> Curvefloat(L"CurveFloat'/Game/Curve/EngineTorque.EngineTorque'");
 	EngineTorqueCurve = Curvefloat.Object;
 	//CharacterMovementComponent
+	/*character movement 설정*/
 	//미끄러지도록 변경
 	GetCharacterMovement()->GroundFriction = 1;				//지면과의 마찰강도 설정
 	GetCharacterMovement()->BrakingDecelerationWalking = 350;//값이 클수록 감속량이 빨라짐
+	GetCharacterMovement()->Mass = 57000.0f;
 }
 
 void ACPP_M1A1::BeginPlay()
 {
 	Super::BeginPlay();
+	//속도 측정을 위한 변수 초기화
+	CurPos = this->GetActorLocation();
+	PrevPos = this->GetActorLocation();
 }
 
 void ACPP_M1A1::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	CamPitchLimitSmooth();
-	RPMControl();
+	EngineControl();
 }
 
 void ACPP_M1A1::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -59,6 +64,7 @@ void ACPP_M1A1::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("HorizontalLook", this, &ACPP_M1A1::OnHorizontalLook);
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACPP_M1A1::OnMoveForward);
 }
+
 
 void ACPP_M1A1::OnVerticalLook(float value)
 {
@@ -87,14 +93,12 @@ void ACPP_M1A1::CamPitchLimitSmooth()
 
 void ACPP_M1A1::OnMoveForward(float value)
 {
-	//UE_LOG(LogTemp, Display, L"%.2f", GetVelocity().Size());
-	//입력 값에 따른 엔진 관련 변수 초기화
-	//엔진 출력은 torque*rpm
-	//토크는 가속력을 의미한다
+
 	if (value > 0)
 	{
 		IsMoveForward = true;
 		IsAccelerating = true;
+		MaxEngineGear = 4;
 	}
 	else if(FMath::IsNearlyZero(value))
 	{
@@ -104,18 +108,17 @@ void ACPP_M1A1::OnMoveForward(float value)
 	{
 		IsMoveForward = false;
 		IsAccelerating = true;
+		MaxEngineGear = 2;
+		//움직임에따라서 기어 맞추기
+		EngineGear = FMath::Clamp<int>(EngineGear, 0, MaxEngineGear);
+		//기어에 맞게 RPM 조절
+		RPM = FMath::Clamp<float>(RPM, MinRPM, MaxRPM);
 	}
 
 	if (IsAccelerating)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = EngineTorque * (RPM*0.0005f);
-		AddMovementInput(GetMesh()->GetForwardVector(), value*EngineTorque*GetWorld()->DeltaTimeSeconds);
+		AddMovementInput(GetMesh()->GetForwardVector(), value*1000*GetWorld()->DeltaTimeSeconds);
 	}
-	
-	auto temp = GetVelocity().Size();
-	UE_LOG(LogTemp, Display, L"speed :: %.2f", temp);
-	UE_LOG(LogTemp, Display, L"Torque:: %.2f", EngineTorque);
-	UE_LOG(LogTemp, Display, L"RPM   :: %.2f", RPM);
 }
 
 void ACPP_M1A1::OnMoveTurn(float value)
@@ -128,32 +131,81 @@ void ACPP_M1A1::OnEngineBreak()
 	IsAccelerating = false;
 }
 
-void ACPP_M1A1::RPMControl()
+void ACPP_M1A1::EngineControl()
 {
-	if (BeforeIsMoveForward != IsMoveForward)
-	{//전진과 후진에 따른 기어변속의 영향을 RPM이 받음
-		RPM = (RPM - 700) >= IdleRPM ? RPM - 700 : IdleRPM*0.7f;
+	//속도
+	CurrentVelocity = GetVelocity().Size();//m/s
+	CurrentVelocity = (CurrentVelocity * 60) / 1000;
+	
+	switch (EngineGear)
+	{
+	case 0:
+		MaxRPM = 250;
+		break;
+	case 1:
+		MinRPM = 250;
+		MaxRPM = 600;
+		break;
+	case 2:
+		MinRPM = 550;
+		MaxRPM = 700;
+		break;
+	case 3:
+		MinRPM = 650;
+		MaxRPM = 800;
+		break;
+	case 4:
+		MinRPM = 750;
+		MaxRPM = 900;
+		break;
+	default:
+		break;
 	}
-	BeforeIsMoveForward = IsMoveForward;
+
+
+	//엑셀레이션에 따른 RPM 변화량 적용
 	if (IsAccelerating)
 	{
 		//가속시 RPM증가
-		if (MaxRPM > RPM)
+		if (MaxRPM >= RPM)
 		{
-			RPM += (300 * GetWorld()->DeltaTimeSeconds);
+			RPM += (RPMDisplacement * GetWorld()->DeltaTimeSeconds);
 		}
+		else
+		{
+			//maxRpm 도달시 기어를 올림
+			if (EngineGear + 1 <= MaxEngineGear)
+				EngineGear++;
+		}
+		
 	}
 	else
 	{
 		//가속이 멈출경우 RPM감소
-		RPM -= (100 * GetWorld()->DeltaTimeSeconds);
+		RPM -= (300 * GetWorld()->DeltaTimeSeconds);
+		if (RPM <= MinRPM)
+		{
+			//Rpm이 낮아지면 기어를 낮춤
+			if (EngineGear - 1 >= 0)
+				EngineGear--;
+		}
 		if (RPM <= IdleRPM)
 		{
-			RPM = 500;
+			RPM = IdleRPM;
 		}
 	}
+	
 	//구한 rpm 값으로 엔진토크 설정
 	EngineTorque = EngineTorqueCurve->GetFloatValue(RPM);
+	//단위 m/s
+	GetCharacterMovement()->MaxWalkSpeed = (RPM*EngineTorque) / ((10 - EngineGear)* 100);
+	
+	/*출력용*/
+	UE_LOG(LogTemp, Display, L"%.2f MaxWalkSpeed", GetCharacterMovement()->MaxWalkSpeed);//max 1250
+	UE_LOG(LogTemp, Display, L"%.2f km/h", CurrentVelocity);								//max 75
+	UE_LOG(LogTemp, Display, L"%d gear", EngineGear);
+	UE_LOG(LogTemp, Display, L"%.2f EngineTorque", EngineTorque);
+	UE_LOG(LogTemp, Display, L"%.2f RPM", RPM);
 }
 
 
