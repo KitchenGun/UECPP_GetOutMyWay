@@ -36,6 +36,7 @@ private:
 	void OnMoveTurn(float value);
 	void OnEngineBreak();
 	void EngineControl();
+	void RPMControl();
 private:
 	//sight
 	float CamRange = 800;
@@ -59,6 +60,7 @@ private:
 	float CurrentVelocity = 0;//
 
 	//Engine 객체 별로 수정할 데이터변수
+	float TurnSpeed = 45;
 	class UCurveFloat* EngineTorqueCurve;
 	int MaxEngineGear = 4;
 	float IdleRPM = 200;
