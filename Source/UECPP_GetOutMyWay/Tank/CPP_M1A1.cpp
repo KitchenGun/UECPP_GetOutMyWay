@@ -110,6 +110,7 @@ void ACPP_M1A1::OnMoveForward(float value)
 	else if(FMath::IsNearlyZero(value))
 	{
 		IsAccelerating = false;
+		IsMoveForward = true;
 	}
 	else
 	{
