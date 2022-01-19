@@ -11,10 +11,11 @@ class UECPP_GETOUTMYWAY_API ACPP_M1A1 : public ACharacter
 	GENERATED_BODY()
 protected:
 	UPROPERTY(EditDefaultsOnly)
-		class UCameraComponent* Camera;
+	class UCameraComponent* Camera;
 	UPROPERTY(EditDefaultsOnly)
-		class USpringArmComponent* SpringArm;
-
+	class USpringArmComponent* SpringArm;
+	UPROPERTY(EditDefaultsOnly)
+	class UCPP_TrackMovementComponent* TrackMovement;
 public:
 	ACPP_M1A1();
 

@@ -7,7 +7,8 @@
 //camera
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-
+//ActorComponent
+#include "Component/CPP_TrackMovementComponent.h"
 
 ACPP_M1A1::ACPP_M1A1()
 {
@@ -18,6 +19,7 @@ ACPP_M1A1::ACPP_M1A1()
 	SpringArm->SetupAttachment(GetMesh());
 	Camera = CreateDefaultSubobject<UCameraComponent>(L"Camera");
 	Camera->SetupAttachment(SpringArm);
+	TrackMovement = CreateDefaultSubobject<UCPP_TrackMovementComponent>(L"TrackMovementComponent");
 
 	/*객체 초기화*/
 	bUseControllerRotationYaw = false;
@@ -218,11 +220,11 @@ void ACPP_M1A1::EngineControl()
 	GetCharacterMovement()->MaxWalkSpeed = (RPM*EngineTorque) / ((10 - EngineGear)* 100);
 	
 	/*출력용*/
-	UE_LOG(LogTemp, Display, L"%.2f MaxWalkSpeed", GetCharacterMovement()->MaxWalkSpeed);//max 1250
-	UE_LOG(LogTemp, Display, L"%.2f km/h", CurrentVelocity);								//max 75
-	UE_LOG(LogTemp, Display, L"%.2f EngineTorque", EngineTorque);
-	UE_LOG(LogTemp, Display, L"%.2f RPM", RPM);
-	UE_LOG(LogTemp, Display, L"%d gear", EngineGear);
+	//UE_LOG(LogTemp, Display, L"%.2f MaxWalkSpeed", GetCharacterMovement()->MaxWalkSpeed);//max 1250
+	//UE_LOG(LogTemp, Display, L"%.2f km/h", CurrentVelocity);								//max 75
+	//UE_LOG(LogTemp, Display, L"%.2f EngineTorque", EngineTorque);
+	//UE_LOG(LogTemp, Display, L"%.2f RPM", RPM);
+	//UE_LOG(LogTemp, Display, L"%d gear", EngineGear);
 }
 
 void ACPP_M1A1::RPMControl()
