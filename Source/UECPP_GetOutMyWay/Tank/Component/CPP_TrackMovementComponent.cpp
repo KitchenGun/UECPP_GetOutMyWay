@@ -17,7 +17,6 @@ UCPP_TrackMovementComponent::UCPP_TrackMovementComponent()
 		tempName.AppendInt(i+2);
 		tempName.Append("_track_jnt");
 		temp.BoneName = FName(tempName);
-		UE_LOG(LogTemp, Log, TEXT("Bone Name :: %s"), *temp.BoneName.ToString());
 		Data.Push(temp);
 	}
 	for (int i = 0; i < BogieWheelCount; i++)
@@ -27,7 +26,7 @@ UCPP_TrackMovementComponent::UCPP_TrackMovementComponent()
 		tempName.AppendInt(i+2);
 		tempName.Append("_track_jnt");
 		temp.BoneName = FName(tempName);
-		UE_LOG(LogTemp, Log, TEXT("Bone Name :: %s"), *temp.BoneName.ToString());
+		//UE_LOG(LogTemp, Log, TEXT("Bone Name :: %s"), *temp.BoneName.ToString());
 		Data.Push(temp);
 	}
 }
@@ -44,14 +43,11 @@ void UCPP_TrackMovementComponent::TickComponent(float DeltaTime, ELevelTick Tick
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	for (FWheelLocationData temp : Data)
+	for (int i = 0; i < Data.Num(); i++)
 	{
 		float Distance;
-		Trace(temp.BoneName, Distance);
-		temp.Distance.X = UKismetMathLibrary::FInterpTo(temp.Distance.X, Distance, DeltaTime, InterpSpeed);
-		
-		UE_LOG(LogTemp, Log, TEXT("Bone Name :: %s"), *temp.BoneName.ToString());
-		UE_LOG(LogTemp, Display, L"%.2f", temp.Distance.X);
+		Trace(Data[i].BoneName, Distance);
+		Data[i].Distance.Z = UKismetMathLibrary::FInterpTo(Data[i].Distance.Z, Distance+Offset, DeltaTime, InterpSpeed);
 	}
 }
 
@@ -78,12 +74,15 @@ void UCPP_TrackMovementComponent::Trace(FName BoneName, float& OutDistance)
 	//OutRotation = FRotator::ZeroRotator;
 	//충돌 없으면 반환
 	if (!hitResult.bBlockingHit)
+	{
+		OutDistance = -40;
 		return;
-
+	}
 	float length = (hitResult.ImpactPoint - hitResult.TraceEnd).Size();
 	//거리 반환
 	OutDistance = length - TraceDistance;
-
+	//if(BoneName == "lf_wheel_02_track_jnt")
+	//	UE_LOG(LogTemp, Display, L"%f", OutDistance);
 	//DegAtan의 경우 각도를 받아서 길이를 반환한다
 	//DegAtan2의 경우 b/a를 각각 반환해서 길이를 반환한다
 	//float roll = UKismetMathLibrary::DegAtan2(hitResult.ImpactNormal.Y, hitResult.ImpactNormal.Z);

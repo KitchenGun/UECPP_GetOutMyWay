@@ -33,16 +33,21 @@ public:
 public:
 	UPROPERTY(EditAnywhere,Category = "Count")//장비의 종류에 따라서 교체가능
 	int BogieWheelCount = 7;//보기륜 갯수
-	TArray<FWheelLocationData> GetData()
+	void GetData(TArray<FWheelLocationData> &AniData)
 	{
-		return Data;
+		for (int i = 0; i < Data.Num(); i++)
+		{
+			AniData[i].BoneName = Data[i].BoneName;
+			AniData[i].Distance = Data[i].Distance;
+		}
 	}
 private:
 	UPROPERTY(EditAnywhere,Category = "Trace")
-	float InterpSpeed = 50;
+	float InterpSpeed = 10;
 	UPROPERTY(EditAnywhere, Category = "Trace")
-	float TraceDistance = 50;
-
+	float TraceDistance = 40;
+	UPROPERTY(EditAnywhere,Category ="Trace")
+	float Offset = 35;
 
 	void Trace(FName BoneName,float &OutDistance);
 
