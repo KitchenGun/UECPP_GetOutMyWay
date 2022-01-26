@@ -1,7 +1,5 @@
 #include "Tank/CPP_TankAnimInstance.h"
 #include "GameFramework/Pawn.h"
-#include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Component/CPP_TrackMovementComponent.h"
 
 void UCPP_TankAnimInstance::NativeInitializeAnimation()
