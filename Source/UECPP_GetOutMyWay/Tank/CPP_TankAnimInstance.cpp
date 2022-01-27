@@ -18,7 +18,9 @@ void UCPP_TankAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		TrackComp = Cast<UCPP_TrackMovementComponent>
 			(Owner->GetComponentByClass(UCPP_TrackMovementComponent::StaticClass()));
-		BogieWheelData.SetNum(TrackComp->BogieWheelCount*2);
+		//track이 null인 경우 막아야함
+		if (TrackComp != nullptr)
+			BogieWheelData.SetNum(TrackComp->BogieWheelCount*2);
 	}
 	else
 	{

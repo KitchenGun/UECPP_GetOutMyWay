@@ -35,7 +35,8 @@ UCPP_TrackMovementComponent::UCPP_TrackMovementComponent()
 void UCPP_TrackMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	OwnerCharacter = Cast<ACharacter>(GetOwner());
+	Owner = Cast<APawn>(GetOwner());
+	Mesh = Cast<USkeletalMeshComponent>(Owner->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
 }
 
 
@@ -47,22 +48,29 @@ void UCPP_TrackMovementComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	{
 		float Distance;
 		Trace(Data[i].BoneName, Distance);
+		UE_LOG(LogTemp,Display,L"%.2f",Distance);
 		Data[i].Distance.Z = UKismetMathLibrary::FInterpTo(Data[i].Distance.Z, Distance+Offset, DeltaTime, InterpSpeed);
 	}
 }
 
 void UCPP_TrackMovementComponent::Trace(FName BoneName, float& OutDistance)
 {
-	FVector socketLocation = OwnerCharacter->GetMesh()->GetSocketLocation(BoneName);
-
-	float z = OwnerCharacter->GetActorLocation().Z;
+/*
+	float z = OwnerCharacter->GetActorLocation().Z;	
 	FVector start = FVector(socketLocation.X, socketLocation.Y, z);
 	//추적할 거리를 빼줘서 탐지 끝나는 거리 설정
 	z = start.Z - (OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()) - TraceDistance;
 	FVector end = FVector(socketLocation.X, socketLocation.Y, z);
+*/
+	FVector socketLocation = Mesh->GetSocketLocation(BoneName);
+	float z = Owner->GetActorLocation().Z-50;
+	FVector start = FVector(socketLocation.X, socketLocation.Y, z);
+	//추적할 거리를 빼줘서 탐지 끝나는 거리 설정
+	z = start.Z -TraceDistance;// 16 - TraceDistance;
+	FVector end = FVector(socketLocation.X, socketLocation.Y, z);
 
 	TArray<AActor*> ignoreActors;
-	ignoreActors.Add(OwnerCharacter);
+	ignoreActors.Add(Owner);
 
 	FHitResult hitResult;
 	//linetrace 생성
@@ -75,7 +83,7 @@ void UCPP_TrackMovementComponent::Trace(FName BoneName, float& OutDistance)
 	//충돌 없으면 반환
 	if (!hitResult.bBlockingHit)
 	{
-		OutDistance = -40;
+		OutDistance = -75;
 		return;
 	}
 	float length = (hitResult.ImpactPoint - hitResult.TraceEnd).Size();

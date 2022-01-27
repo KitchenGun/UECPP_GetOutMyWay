@@ -45,13 +45,14 @@ private:
 	UPROPERTY(EditAnywhere,Category = "Trace")
 	float InterpSpeed = 10;
 	UPROPERTY(EditAnywhere, Category = "Trace")
-	float TraceDistance = 40;
+	float TraceDistance = 100;
 	UPROPERTY(EditAnywhere,Category ="Trace")
-	float Offset = 35;
+	float Offset = 70;
 
 	void Trace(FName BoneName,float &OutDistance);
 
-	class ACharacter* OwnerCharacter;
+	class APawn* Owner;
+	class USkeletalMeshComponent* Mesh;
 
 	TArray<FWheelLocationData> Data;
 };
