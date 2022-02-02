@@ -8,11 +8,18 @@ USTRUCT(BlueprintType)
 struct FWheelLocationData
 {
 	GENERATED_BODY()
+	
+	FWheelLocationData(int32 index = 0, FVector distance = FVector::ZeroVector)
+	{
+		Distance = distance;
+		BoneIndex = index;
+	}
+
 public:
 	UPROPERTY(BlueprintReadOnly,EditAnywhere,Category="Wheel")
 	FVector Distance=FVector::ZeroVector;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Wheel")
-	FName BoneName = "";
+	int32 BoneIndex = 0;
 };
 
 
@@ -37,10 +44,11 @@ public:
 	{
 		for (int i = 0; i < Data.Num(); i++)
 		{
-			AniData[i].BoneName = Data[i].BoneName;
+			AniData[i].BoneIndex = Data[i].BoneIndex;
 			AniData[i].Distance = Data[i].Distance;
 		}
 	}
+
 private:
 	UPROPERTY(EditAnywhere,Category = "Trace")
 	float InterpSpeed = 10;
@@ -49,7 +57,8 @@ private:
 	UPROPERTY(EditAnywhere,Category ="Trace")
 	float Offset = 70;
 
-	void Trace(FName BoneName,float &OutDistance);
+	void Trace(int32 BoneIndex,float &OutDistance);
+	void SetTraceBoneName(FName &TraceStartBone, FName& TraceWheelBone, int32 Index);
 
 	class APawn* Owner;
 	class USkeletalMeshComponent* Mesh;

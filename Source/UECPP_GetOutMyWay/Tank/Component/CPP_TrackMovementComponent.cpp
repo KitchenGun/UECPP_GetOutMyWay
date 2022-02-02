@@ -9,24 +9,16 @@
 UCPP_TrackMovementComponent::UCPP_TrackMovementComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
 	for (int i = 0; i < BogieWheelCount; i++)
 	{
 		FWheelLocationData temp;//보기륜이 10개가 넘어가지 않는다고 가정하였음
-		FString tempName = "lf_wheel_0";
-		tempName.AppendInt(i+2);
-		tempName.Append("_track_jnt");
-		temp.BoneName = FName(tempName);
+		temp.BoneIndex = (i+2);
 		Data.Push(temp);
 	}
 	for (int i = 0; i < BogieWheelCount; i++)
 	{
 		FWheelLocationData temp;//보기륜이 10개가 넘어가지 않는다고 가정하였음
-		FString tempName = "rt_wheel_0";
-		tempName.AppendInt(i+2);
-		tempName.Append("_track_jnt");
-		temp.BoneName = FName(tempName);
-		//UE_LOG(LogTemp, Log, TEXT("Bone Name :: %s"), *temp.BoneName.ToString());
+		temp.BoneIndex = (i + 2);
 		Data.Push(temp);
 	}
 }
@@ -47,26 +39,23 @@ void UCPP_TrackMovementComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	for (int i = 0; i < Data.Num(); i++)
 	{
 		float Distance;
-		Trace(Data[i].BoneName, Distance);
-		UE_LOG(LogTemp,Display,L"%.2f",Distance);
-		Data[i].Distance.Z = UKismetMathLibrary::FInterpTo(Data[i].Distance.Z, Distance+Offset, DeltaTime, InterpSpeed);
+		Trace(i, Distance);
+		Data[i].Distance.Z = UKismetMathLibrary::FInterpTo(Data[i].Distance.Z, Distance, DeltaTime, InterpSpeed);
 	}
 }
 
-void UCPP_TrackMovementComponent::Trace(FName BoneName, float& OutDistance)
+void UCPP_TrackMovementComponent::Trace(int32 Index, float& OutDistance)
 {
-/*
-	float z = OwnerCharacter->GetActorLocation().Z;	
+	FName TraceStartBoneName;
+	FName TraceWheelBoneName;
+	SetTraceBoneName(TraceStartBoneName, TraceWheelBoneName,Index);
+	UE_LOG(LogTemp, Display, L"%d", Index);
+	FVector socketLocation = Mesh->GetSocketLocation(TraceWheelBoneName);//wheel 의 xy좌표를 가져옴
+	float z = Mesh->GetSocketLocation(TraceStartBoneName).Z;//추적 시작 Z좌표를 가져옴
+	//UE_LOG(LogTemp, Display, L"%f", z);
 	FVector start = FVector(socketLocation.X, socketLocation.Y, z);
 	//추적할 거리를 빼줘서 탐지 끝나는 거리 설정
-	z = start.Z - (OwnerCharacter->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()) - TraceDistance;
-	FVector end = FVector(socketLocation.X, socketLocation.Y, z);
-*/
-	FVector socketLocation = Mesh->GetSocketLocation(BoneName);
-	float z = Owner->GetActorLocation().Z-50;
-	FVector start = FVector(socketLocation.X, socketLocation.Y, z);
-	//추적할 거리를 빼줘서 탐지 끝나는 거리 설정
-	z = start.Z -TraceDistance;// 16 - TraceDistance;
+	z = start.Z -TraceDistance;
 	FVector end = FVector(socketLocation.X, socketLocation.Y, z);
 
 	TArray<AActor*> ignoreActors;
@@ -83,14 +72,17 @@ void UCPP_TrackMovementComponent::Trace(FName BoneName, float& OutDistance)
 	//충돌 없으면 반환
 	if (!hitResult.bBlockingHit)
 	{
-		OutDistance = -75;
+		if(Index==2)
+			OutDistance = -75;
+		else
+			OutDistance = -65;//기본적인 추적 시작 위치와 wheel의 높이 차이
 		return;
 	}
 	float length = (hitResult.ImpactPoint - hitResult.TraceEnd).Size();
 	//거리 반환
-	OutDistance = length - TraceDistance;
+	OutDistance = length;
 	//if(BoneName == "lf_wheel_02_track_jnt")
-	//	UE_LOG(LogTemp, Display, L"%f", OutDistance);
+		//UE_LOG(LogTemp, Display, L"%f", OutDistance);
 	//DegAtan의 경우 각도를 받아서 길이를 반환한다
 	//DegAtan2의 경우 b/a를 각각 반환해서 길이를 반환한다
 	//float roll = UKismetMathLibrary::DegAtan2(hitResult.ImpactNormal.Y, hitResult.ImpactNormal.Z);
@@ -98,5 +90,35 @@ void UCPP_TrackMovementComponent::Trace(FName BoneName, float& OutDistance)
 
 	//OutRotation = FRotator(pitch, 0, roll);
 
+}
+
+void UCPP_TrackMovementComponent::SetTraceBoneName(FName& TraceStartBone, FName& TraceWheelBone, int32 Index)
+{
+	FString tempStartName;
+	FString tempWheelName;
+
+	if(Index < BogieWheelCount)
+	{ 
+		tempStartName = "lf_hidraulic_1_";
+		tempStartName.AppendInt(Index+2);
+		tempStartName.Append("_jnt");
+
+		tempWheelName = "lf_wheel_0";
+		tempWheelName.AppendInt(Index + 2);
+		tempWheelName.Append("_track_jnt");
+	}
+	else
+	{
+		tempStartName = "rt_hidraulic_1_";
+		tempStartName.AppendInt(Index + 2 - BogieWheelCount);
+		tempStartName.Append("_jnt");
+
+		tempWheelName = "rt_wheel_0";
+		tempWheelName.AppendInt(Index + 2 - BogieWheelCount);
+		tempWheelName.Append("_track_jnt");
+	}
+		
+	TraceStartBone = FName(tempStartName);
+	TraceWheelBone = FName(tempWheelName);
 }
 
