@@ -49,10 +49,10 @@ void UCPP_TrackMovementComponent::Trace(int32 Index, float& OutDistance)
 	FName TraceStartBoneName;
 	FName TraceWheelBoneName;
 	SetTraceBoneName(TraceStartBoneName, TraceWheelBoneName,Index);
-	UE_LOG(LogTemp, Display, L"%d", Index);
 	FVector socketLocation = Mesh->GetSocketLocation(TraceWheelBoneName);//wheel 의 xy좌표를 가져옴
 	float z = Mesh->GetSocketLocation(TraceStartBoneName).Z;//추적 시작 Z좌표를 가져옴
-	//UE_LOG(LogTemp, Display, L"%f", z);
+	if (Index == 0 || Index == 7)
+		z -= 12;
 	FVector start = FVector(socketLocation.X, socketLocation.Y, z);
 	//추적할 거리를 빼줘서 탐지 끝나는 거리 설정
 	z = start.Z -TraceDistance;
@@ -72,17 +72,14 @@ void UCPP_TrackMovementComponent::Trace(int32 Index, float& OutDistance)
 	//충돌 없으면 반환
 	if (!hitResult.bBlockingHit)
 	{
-		if(Index==2)
-			OutDistance = -75;
-		else
-			OutDistance = -65;//기본적인 추적 시작 위치와 wheel의 높이 차이
+		OutDistance = -10;//기본적인 추적 시작 위치와 wheel의 높이 차이
 		return;
 	}
 	float length = (hitResult.ImpactPoint - hitResult.TraceEnd).Size();
 	//거리 반환
-	OutDistance = length;
+	OutDistance = length-Offset;
 	//if(BoneName == "lf_wheel_02_track_jnt")
-		//UE_LOG(LogTemp, Display, L"%f", OutDistance);
+	
 	//DegAtan의 경우 각도를 받아서 길이를 반환한다
 	//DegAtan2의 경우 b/a를 각각 반환해서 길이를 반환한다
 	//float roll = UKismetMathLibrary::DegAtan2(hitResult.ImpactNormal.Y, hitResult.ImpactNormal.Z);

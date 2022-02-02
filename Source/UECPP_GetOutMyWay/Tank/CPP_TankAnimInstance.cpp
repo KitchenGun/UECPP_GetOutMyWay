@@ -38,6 +38,11 @@ void UCPP_TankAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Super::NativeUpdateAnimation(DeltaSeconds);
 	if(Owner==nullptr)
 		return;
+	if (TrackComp == nullptr)
+	{
+		TrackComp = Cast<UCPP_TrackMovementComponent>
+			(Owner->GetComponentByClass(UCPP_TrackMovementComponent::StaticClass()));
+	}
 
 	if (TrackComp != nullptr)
 	{

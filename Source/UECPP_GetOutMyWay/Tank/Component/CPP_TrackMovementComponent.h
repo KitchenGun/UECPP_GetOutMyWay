@@ -53,9 +53,9 @@ private:
 	UPROPERTY(EditAnywhere,Category = "Trace")
 	float InterpSpeed = 10;
 	UPROPERTY(EditAnywhere, Category = "Trace")
-	float TraceDistance = 100;
+	float TraceDistance = 75;
 	UPROPERTY(EditAnywhere,Category ="Trace")
-	float Offset = 70;
+	float Offset = 15;
 
 	void Trace(int32 BoneIndex,float &OutDistance);
 	void SetTraceBoneName(FName &TraceStartBone, FName& TraceWheelBone, int32 Index);
