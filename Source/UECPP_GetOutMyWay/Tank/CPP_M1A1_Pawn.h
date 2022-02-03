@@ -11,7 +11,7 @@ class UECPP_GETOUTMYWAY_API ACPP_M1A1_Pawn : public APawn
 protected:
 	//Root
 	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* TankRoot;
+	class UStaticMeshComponent* TankRoot;
 
 	//Mesh
 	UPROPERTY(EditDefaultsOnly)
@@ -24,14 +24,20 @@ protected:
 	class USpringArmComponent* SpringArm;
 
 	//Collision
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(VisibleDefaultsOnly,BlueprintReadWrite)
 	class UBoxComponent* FrontUpper;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 	class UBoxComponent* FrontUnder;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 	class UBoxComponent* Engine;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 	class UBoxComponent* Bottom;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	class UBoxComponent* LSide;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	class UBoxComponent* RSide;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	class UBoxComponent* Turret;
 
 	//ActorComp
 	UPROPERTY(EditDefaultsOnly)
@@ -47,7 +53,19 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
 
 private:
+	void OnVerticalLook(float value);
+	void OnHorizontalLook(float value);
+	void CamPitchLimitSmooth();
 
+	void OnMoveForward(float value);
+	void OnMoveTurn(float value);
+private:
+	//sight
+	float CamRange = 800;
+	float BasicCamTurnSpeed = 100;
+	float PitchLimitMax = 360;
+	float PitchLimitMin = 270;
 };
