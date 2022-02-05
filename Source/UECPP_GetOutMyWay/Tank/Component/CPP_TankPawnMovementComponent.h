@@ -1,0 +1,45 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/PawnMovementComponent.h"
+#include "CPP_TankPawnMovementComponent.generated.h"
+
+UCLASS()
+class UECPP_GETOUTMYWAY_API UCPP_TankPawnMovementComponent : public UPawnMovementComponent
+{
+	GENERATED_BODY()
+public:
+	
+	virtual void BeginPlay() override;
+
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+
+
+	void OnMove(float value);
+	void OnTurn(float value);
+
+private:
+	class APawn* Owner;
+	FVector NextLocation = FVector::ZeroVector;
+	FRotator NextRotation = FRotator::ZeroRotator;
+
+	//Engine 변수
+	bool IsMoveForward = true;
+	float EngineTorque = 0.0f;
+	int EngineGear = 0;
+	float RPM = 500;
+	bool IsAccelerating = false;
+	float CurrentVelocity = 0;//
+	float Speed = 100;
+
+	//Engine 객체 별로 수정할 데이터변수
+	float TurnSpeed = 45;
+	class UCurveFloat* EngineTorqueCurve;
+	int MaxEngineGear = 4;
+	float IdleRPM = 200;
+	float RPMDisplacement = 200;
+	float MinRPM = 200;
+	float MaxRPM = 900;
+
+};

@@ -24,24 +24,25 @@ protected:
 	class USpringArmComponent* SpringArm;
 
 	//Collision
-	UPROPERTY(VisibleDefaultsOnly,BlueprintReadWrite)
+	UPROPERTY(VisibleDefaultsOnly)
 	class UBoxComponent* FrontUpper;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(VisibleDefaultsOnly)
 	class UBoxComponent* FrontUnder;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(VisibleDefaultsOnly)
 	class UBoxComponent* Engine;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(VisibleDefaultsOnly)
 	class UBoxComponent* Bottom;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(VisibleDefaultsOnly)
 	class UBoxComponent* LSide;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(VisibleDefaultsOnly)
 	class UBoxComponent* RSide;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(VisibleDefaultsOnly)
 	class UBoxComponent* Turret;
 
 	//ActorComp
-	UPROPERTY(EditDefaultsOnly)
 	class UCPP_TrackMovementComponent* TrackMovement;
+
+	class UCPP_TankPawnMovementComponent* TankMovement;
 
 public:
 	ACPP_M1A1_Pawn();
@@ -54,6 +55,8 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
+	//기존의 getmovementcomp 함수를 현재가지고 있는 함수로 교체하는 과정
+	FORCEINLINE virtual UPawnMovementComponent* GetMovementComponent() const override;
 
 private:
 	void OnVerticalLook(float value);
@@ -62,10 +65,12 @@ private:
 
 	void OnMoveForward(float value);
 	void OnMoveTurn(float value);
+
 private:
 	//sight
 	float CamRange = 800;
 	float BasicCamTurnSpeed = 100;
 	float PitchLimitMax = 360;
 	float PitchLimitMin = 270;
+
 };

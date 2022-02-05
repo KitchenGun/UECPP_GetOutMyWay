@@ -9,6 +9,7 @@
 #include "GameFramework/SpringArmComponent.h"
 //actorComp
 #include "Component/CPP_TrackMovementComponent.h"
+#include "Component/CPP_TankPawnMovementComponent.h"
 
 
 ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
@@ -43,9 +44,10 @@ ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
 	SpringArm->SetupAttachment(TankMesh);
 	Camera = CreateDefaultSubobject<UCameraComponent>(L"Camera");
 	Camera->SetupAttachment(SpringArm);
+
 	//actorcomp
 	TrackMovement = CreateDefaultSubobject<UCPP_TrackMovementComponent>(L"TrackMovement");
-
+	TankMovement = CreateDefaultSubobject<UCPP_TankPawnMovementComponent>(L"TankPawnMovement");
 	/*∞¥√º √ ±‚»≠*/
 	//mesh
 	ConstructorHelpers::FObjectFinder<UStaticMesh> smesh
@@ -96,7 +98,6 @@ ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
 void ACPP_M1A1_Pawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void ACPP_M1A1_Pawn::Tick(float DeltaTime)
@@ -112,6 +113,11 @@ void ACPP_M1A1_Pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis("HorizontalLook", this, &ACPP_M1A1_Pawn::OnHorizontalLook);
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACPP_M1A1_Pawn::OnMoveForward);
 	PlayerInputComponent->BindAxis("MoveTurn", this, &ACPP_M1A1_Pawn::OnMoveTurn);
+}
+
+UPawnMovementComponent* ACPP_M1A1_Pawn::GetMovementComponent() const
+{
+	return TankMovement;
 }
 
 void ACPP_M1A1_Pawn::OnVerticalLook(float value)
@@ -140,9 +146,17 @@ void ACPP_M1A1_Pawn::CamPitchLimitSmooth()
 
 void ACPP_M1A1_Pawn::OnMoveForward(float value)
 {
+	if (TankMovement != nullptr)
+	{
+		TankMovement->OnMove(value);
+	}
 }
 
 void ACPP_M1A1_Pawn::OnMoveTurn(float value)
 {
+	if (TankMovement != nullptr)
+	{
+		TankMovement->OnTurn(value);
+	}
 }
 
