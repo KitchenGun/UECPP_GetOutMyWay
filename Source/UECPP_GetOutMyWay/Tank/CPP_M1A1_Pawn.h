@@ -55,6 +55,7 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
+	//get&set
 	//기존의 getmovementcomp 함수를 현재가지고 있는 함수로 교체하는 과정
 	FORCEINLINE virtual UPawnMovementComponent* GetMovementComponent() const override;
 

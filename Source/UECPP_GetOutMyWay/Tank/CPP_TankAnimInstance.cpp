@@ -1,6 +1,7 @@
 #include "Tank/CPP_TankAnimInstance.h"
 #include "GameFramework/Pawn.h"
 #include "Component/CPP_TrackMovementComponent.h"
+#include "Component/CPP_TankPawnMovementComponent.h"
 
 void UCPP_TankAnimInstance::NativeInitializeAnimation()
 {
@@ -12,6 +13,15 @@ void UCPP_TankAnimInstance::NativeInitializeAnimation()
 			(Owner->GetComponentByClass(UCPP_TrackMovementComponent::StaticClass()));
 		if (TrackComp != nullptr)
 			BogieWheelData.SetNum(TrackComp->BogieWheelCount * 2);
+	}
+	if (TankMovementComp == nullptr && Owner != nullptr)
+	{
+		TankMovementComp = Cast<UCPP_TankPawnMovementComponent>
+			(Owner->GetComponentByClass(UCPP_TankPawnMovementComponent::StaticClass()));
+		if (TankMovementComp != nullptr)
+		{
+			
+		}
 	}
 
 	BogieWheelData=

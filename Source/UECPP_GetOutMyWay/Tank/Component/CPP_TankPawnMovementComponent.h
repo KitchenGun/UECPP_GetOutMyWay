@@ -15,8 +15,16 @@ public:
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	//ABP에 전달할 변수 설정 함수
+	void SetWheelSpeed();
+
+	//이동
+	void Movement(float DeltaTime);
 	void OnMove(float value);
 	void OnTurn(float value);
+
+	//get&set
+	FORCEINLINE float GetTrackSpeed() { return TrackSpeed; }
 private:
 	void EngineControl();
 	void RPMControl();
@@ -24,8 +32,16 @@ private:
 
 private:
 	class APawn* Owner;
+
+	//mesh&ani
+	class USkeletalMeshComponent* TankMesh;
+	class UCPP_TankAnimInstance* TankAnimInst;
+
+	//movement
 	FVector NextLocation = FVector::ZeroVector;
 	FRotator NextRotation = FRotator::ZeroRotator;
+	//TrackSpeed
+	float TrackSpeed = 0;
 
 	//Engine 변수
 	bool IsMoveForward = true;
@@ -37,7 +53,7 @@ private:
 	float Speed = 100;
 
 	//Engine 객체 별로 수정할 데이터변수
-	float TurnSpeed = 45;
+	float TurnSpeed = 35;//선회 속도
 	class UCurveFloat* EngineTorqueCurve;
 	int MaxEngineGear = 4;
 	float IdleRPM = 200;
@@ -45,4 +61,5 @@ private:
 	float MinRPM = 200;
 	float MaxRPM = 900;
 
+	
 };

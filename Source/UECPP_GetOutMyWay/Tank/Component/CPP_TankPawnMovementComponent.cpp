@@ -1,5 +1,7 @@
 #include "Tank/Component/CPP_TankPawnMovementComponent.h"
+#include "Tank/CPP_TankAnimInstance.h"
 #include "GameFramework/Actor.h"
+#include "Animation/AnimInstance.h"
 
 
 UCPP_TankPawnMovementComponent::UCPP_TankPawnMovementComponent()
@@ -9,6 +11,14 @@ UCPP_TankPawnMovementComponent::UCPP_TankPawnMovementComponent()
 
 	ConstructorHelpers::FObjectFinder<UCurveFloat> Curvefloat(L"CurveFloat'/Game/Data/Tank/Curve/FCurv_EngineTorque.FCurv_EngineTorque'");
 	EngineTorqueCurve = Curvefloat.Object;
+
+
+	if(Owner != nullptr)
+		TankMesh = Cast<USkeletalMeshComponent>(Owner->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
+	if (TankMesh != nullptr)
+	{
+		TankAnimInst = Cast<UCPP_TankAnimInstance>(TankMesh->GetAnimInstance());
+	}
 }
 
 void UCPP_TankPawnMovementComponent::BeginPlay()
@@ -21,23 +31,41 @@ void UCPP_TankPawnMovementComponent::TickComponent(float DeltaTime, ELevelTick T
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	EngineControl();
+	Movement(DeltaTime);
+
+}
+
+void UCPP_TankPawnMovementComponent::SetWheelSpeed()
+{
+	if (!NextRotation.IsNearlyZero()&&NextLocation.IsNearlyZero())//방향전환 o, 이동 x
+	{
+		TrackSpeed = TurnSpeed;
+	}
+	else if (NextRotation.IsNearlyZero() && !NextLocation.IsNearlyZero())//방향전환 X, 이동 o
+	{
+		if(IsMoveForward)
+			TrackSpeed=abs(TrackSpeed);
+	}
+}
+
+void UCPP_TankPawnMovementComponent::Movement(float DeltaTime)
+{
 	if (Owner != nullptr && !NextLocation.IsNearlyZero())
 	{
-		NextLocation = GetActorLocation() + (NextLocation*DeltaTime*Speed);
-		
+		NextLocation = GetActorLocation() + (NextLocation * DeltaTime * Speed);
+
 		Owner->SetActorRelativeLocation(NextLocation);
 
 		NextLocation = FVector::ZeroVector;
 	}
 	if (Owner != nullptr && !NextRotation.IsNearlyZero())
 	{
-		NextRotation = Owner->GetActorRotation() + (NextRotation * DeltaTime * 200);
+		NextRotation = Owner->GetActorRotation() + (NextRotation * DeltaTime * TurnSpeed);
 
 		Owner->SetActorRelativeRotation(NextRotation);
 
 		NextRotation = FRotator::ZeroRotator;
 	}
-
 }
 
 void UCPP_TankPawnMovementComponent::OnMove(float value)
@@ -85,7 +113,6 @@ void UCPP_TankPawnMovementComponent::OnTurn(float value)
 	//가속중이 아니라면 실제와 유사하게 회전방향으로 조금씩 이동하도록 만듬
 	if (!FMath::IsNearlyZero(value))
 	{
-		value = value * TurnSpeed * GetWorld()->DeltaTimeSeconds;
 		//후진시 방향을 반전하기 위해서
 		if (!IsMoveForward)
 			value *= -1;
