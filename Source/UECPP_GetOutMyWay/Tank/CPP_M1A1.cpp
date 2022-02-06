@@ -34,7 +34,7 @@ ACPP_M1A1::ACPP_M1A1()
 	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->TargetArmLength = CamRange;
 	//engine
-	ConstructorHelpers::FObjectFinder<UCurveFloat> Curvefloat(L"CurveFloat'/Game/Data/Tank/Curve/EngineTorque.EngineTorque'");
+	ConstructorHelpers::FObjectFinder<UCurveFloat> Curvefloat(L"CurveFloat'/Game/Data/Tank/Curve/FCurv_EngineTorque.FCurv_EngineTorque'");
 	EngineTorqueCurve = Curvefloat.Object;
 	//CharacterMovementComponent
 	/*character movement ¼³Á¤*/

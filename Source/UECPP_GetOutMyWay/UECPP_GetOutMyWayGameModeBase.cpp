@@ -1,5 +1,3 @@
-#include "Tank/CPP_M1A1.h"
-
 #include "UECPP_GetOutMyWayGameModeBase.h"
 
 AUECPP_GetOutMyWayGameModeBase::AUECPP_GetOutMyWayGameModeBase()

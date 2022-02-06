@@ -9,15 +9,18 @@ class UECPP_GETOUTMYWAY_API UCPP_TankPawnMovementComponent : public UPawnMovemen
 {
 	GENERATED_BODY()
 public:
-	
+	UCPP_TankPawnMovementComponent();
+
 	virtual void BeginPlay() override;
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
-
 	void OnMove(float value);
 	void OnTurn(float value);
+private:
+	void EngineControl();
+	void RPMControl();
+	void OnEngineBreak();
 
 private:
 	class APawn* Owner;
