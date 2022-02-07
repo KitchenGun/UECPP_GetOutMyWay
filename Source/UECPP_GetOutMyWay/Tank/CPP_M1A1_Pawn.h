@@ -66,7 +66,8 @@ private:
 
 	void OnMoveForward(float value);
 	void OnMoveTurn(float value);
-
+	void OnEngineBreak();
+	void OffEngineBreak();
 private:
 	//sight
 	float CamRange = 800;

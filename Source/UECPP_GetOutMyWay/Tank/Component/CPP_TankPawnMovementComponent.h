@@ -22,13 +22,14 @@ public:
 	void Movement(float DeltaTime);
 	void OnMove(float value);
 	void OnTurn(float value);
+	void OnEngineBreak();
+	void OffEngineBreak();
 
 	//get&set
 	FORCEINLINE float GetTrackSpeed() { return TrackSpeed; }
 private:
 	void EngineControl();
 	void RPMControl();
-	void OnEngineBreak();
 
 private:
 	class APawn* Owner;
@@ -51,6 +52,7 @@ private:
 	bool IsAccelerating = false;
 	float CurrentVelocity = 0;//
 	float Speed = 100;
+	bool isBreak = false;
 
 	//Engine 객체 별로 수정할 데이터변수
 	float TurnSpeed = 35;//선회 속도

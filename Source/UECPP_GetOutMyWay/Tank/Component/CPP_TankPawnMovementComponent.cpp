@@ -50,22 +50,22 @@ void UCPP_TankPawnMovementComponent::SetWheelSpeed()
 
 void UCPP_TankPawnMovementComponent::Movement(float DeltaTime)
 {
-	if (Owner != nullptr && !NextLocation.IsNearlyZero())
+	if (Owner != nullptr && !NextLocation.IsNearlyZero()&&!isBreak)
 	{
 		NextLocation = GetActorLocation() + (NextLocation * DeltaTime * Speed);
 
 		Owner->SetActorRelativeLocation(NextLocation);
 
-		NextLocation = FVector::ZeroVector;
 	}
+	NextLocation = FVector::ZeroVector;
 	if (Owner != nullptr && !NextRotation.IsNearlyZero())
 	{
 		NextRotation = Owner->GetActorRotation() + (NextRotation * DeltaTime * TurnSpeed);
 
 		Owner->SetActorRelativeRotation(NextRotation);
 
-		NextRotation = FRotator::ZeroRotator;
 	}
+	NextRotation = FRotator::ZeroRotator;
 }
 
 void UCPP_TankPawnMovementComponent::OnMove(float value)
@@ -221,4 +221,10 @@ void UCPP_TankPawnMovementComponent::RPMControl()
 
 void UCPP_TankPawnMovementComponent::OnEngineBreak()
 {
+	isBreak=true;
+}
+
+void UCPP_TankPawnMovementComponent::OffEngineBreak()
+{
+	isBreak = false;
 }

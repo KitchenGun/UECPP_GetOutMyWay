@@ -113,6 +113,9 @@ void ACPP_M1A1_Pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis("HorizontalLook", this, &ACPP_M1A1_Pawn::OnHorizontalLook);
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACPP_M1A1_Pawn::OnMoveForward);
 	PlayerInputComponent->BindAxis("MoveTurn", this, &ACPP_M1A1_Pawn::OnMoveTurn);
+	
+	PlayerInputComponent->BindAction("EngineBreak",IE_Pressed,this, &ACPP_M1A1_Pawn::OnEngineBreak);
+	PlayerInputComponent->BindAction("EngineBreak", IE_Released, this, &ACPP_M1A1_Pawn::OffEngineBreak);
 }
 
 UPawnMovementComponent* ACPP_M1A1_Pawn::GetMovementComponent() const
@@ -158,5 +161,15 @@ void ACPP_M1A1_Pawn::OnMoveTurn(float value)
 	{
 		TankMovement->OnTurn(value);
 	}
+}
+
+void ACPP_M1A1_Pawn::OnEngineBreak()
+{
+	TankMovement->OnEngineBreak();
+}
+
+void ACPP_M1A1_Pawn::OffEngineBreak()
+{
+	TankMovement->OffEngineBreak();
 }
 
