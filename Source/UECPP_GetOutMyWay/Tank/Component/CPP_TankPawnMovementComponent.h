@@ -41,11 +41,14 @@ private:
 	//movement
 	FVector NextLocation = FVector::ZeroVector;
 	FRotator NextRotation = FRotator::ZeroRotator;
+	FVector PrevPos = FVector::ZeroVector;
+	float SpeedTimer = 0;
 	//TrackSpeed
 	float TrackSpeed = 0;
 
 	//Engine º¯¼ö
 	bool IsMoveForward = true;
+	float TurnValue =0;
 	float EngineTorque = 0.0f;
 	int EngineGear = 0;
 	float RPM = 500;

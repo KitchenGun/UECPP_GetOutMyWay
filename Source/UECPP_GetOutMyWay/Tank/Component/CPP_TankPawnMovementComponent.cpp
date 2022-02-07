@@ -32,39 +32,45 @@ void UCPP_TankPawnMovementComponent::TickComponent(float DeltaTime, ELevelTick T
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	EngineControl();
 	Movement(DeltaTime);
-
 }
 
 void UCPP_TankPawnMovementComponent::SetWheelSpeed()
 {
-	if (!NextRotation.IsNearlyZero()&&NextLocation.IsNearlyZero())//방향전환 o, 이동 x
-	{
-		TrackSpeed = TurnSpeed;
-	}
-	else if (NextRotation.IsNearlyZero() && !NextLocation.IsNearlyZero())//방향전환 X, 이동 o
-	{
-		if(IsMoveForward)
-			TrackSpeed=abs(TrackSpeed);
-	}
+	TrackSpeed = EngineTorque-181;
 }
 
 void UCPP_TankPawnMovementComponent::Movement(float DeltaTime)
 {
-	if (Owner != nullptr && !NextLocation.IsNearlyZero()&&!isBreak)
+	//속도
+	if (SpeedTimer >= 1.0f)
+	{
+		CurrentVelocity = (GetActorLocation() - PrevPos).Size();//m/s
+		PrevPos = GetActorLocation();
+		SpeedTimer=0;
+		CurrentVelocity *= 0.036f;
+	}
+	else
+	{
+		SpeedTimer+=DeltaTime;
+	}
+	if (Owner != nullptr && !NextLocation.IsNearlyZero() && !isBreak)
 	{
 		NextLocation = GetActorLocation() + (NextLocation * DeltaTime * Speed);
-
 		Owner->SetActorRelativeLocation(NextLocation);
-
 	}
-	NextLocation = FVector::ZeroVector;
 	if (Owner != nullptr && !NextRotation.IsNearlyZero())
 	{
 		NextRotation = Owner->GetActorRotation() + (NextRotation * DeltaTime * TurnSpeed);
-
+		//정지시 조금씩 앞으로 이동하도록 제작
+		if (!IsAccelerating)
+		{
+			NextLocation = GetActorLocation() + (Owner->GetActorForwardVector() * DeltaTime * 8.0f);
+			Owner->SetActorRelativeLocation(NextLocation);
+		}
 		Owner->SetActorRelativeRotation(NextRotation);
 
 	}
+	NextLocation = FVector::ZeroVector;
 	NextRotation = FRotator::ZeroRotator;
 }
 
@@ -131,6 +137,7 @@ void UCPP_TankPawnMovementComponent::OnTurn(float value)
 	}
 
 	NextRotation.Yaw+=value;
+	TurnValue = value;
 }
 
 void UCPP_TankPawnMovementComponent::EngineControl()
