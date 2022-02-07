@@ -2,6 +2,7 @@
 #include "Tank/CPP_TankAnimInstance.h"
 #include "GameFramework/Actor.h"
 #include "Animation/AnimInstance.h"
+#include "Media/Public/IMediaEventSink.h"
 
 
 UCPP_TankPawnMovementComponent::UCPP_TankPawnMovementComponent()
@@ -34,25 +35,18 @@ void UCPP_TankPawnMovementComponent::TickComponent(float DeltaTime, ELevelTick T
 	Movement(DeltaTime);
 }
 
-void UCPP_TankPawnMovementComponent::SetWheelSpeed()
+void UCPP_TankPawnMovementComponent::SetWheelSpeed(float WheelSpeed)
 {
-	TrackSpeed = EngineTorque-181;
+	TrackSpeed = WheelSpeed*0.1f;
+	//if(IsAccelerating)
+	//	TrackSpeed = WheelSpeed;
+	//else
+	//	TrackSpeed=10*TurnValue;
 }
 
 void UCPP_TankPawnMovementComponent::Movement(float DeltaTime)
 {
-	//속도
-	if (SpeedTimer >= 1.0f)
-	{
-		CurrentVelocity = (GetActorLocation() - PrevPos).Size();//m/s
-		PrevPos = GetActorLocation();
-		SpeedTimer=0;
-		CurrentVelocity *= 0.036f;
-	}
-	else
-	{
-		SpeedTimer+=DeltaTime;
-	}
+	
 	if (Owner != nullptr && !NextLocation.IsNearlyZero() && !isBreak)
 	{
 		NextLocation = GetActorLocation() + (NextLocation * DeltaTime * Speed);
@@ -110,7 +104,9 @@ void UCPP_TankPawnMovementComponent::OnMove(float value)
 			IsMoveForward = false;
 		}
 	}
-
+	CurrentVelocity=(dir*Speed*0.036f).Size();
+	
+	SetWheelSpeed(CurrentVelocity*value);
 	NextLocation+=(dir*value);
 }
 
@@ -123,7 +119,7 @@ void UCPP_TankPawnMovementComponent::OnTurn(float value)
 		if (!IsMoveForward)
 			value *= -1;
 		//선회 할경우 기어 감소
-		RPM -= (300 * GetWorld()->DeltaTimeSeconds);
+		RPM -= (100 * GetWorld()->DeltaTimeSeconds);
 		if (RPM <= MinRPM)
 		{
 			//Rpm이 낮아지면 기어를 낮춤
