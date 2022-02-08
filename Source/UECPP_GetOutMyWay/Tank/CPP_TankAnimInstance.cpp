@@ -1,5 +1,6 @@
 #include "Tank/CPP_TankAnimInstance.h"
 #include "GameFramework/Pawn.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Component/CPP_TrackMovementComponent.h"
 #include "Component/CPP_TankPawnMovementComponent.h"
 
@@ -7,6 +8,12 @@ void UCPP_TankAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 	Owner = TryGetPawnOwner();
+	if(Owner!=nullptr)
+	{
+		TankMeshComp = Cast<USkeletalMeshComponent>(Owner->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
+	}
+	
+	
 	if (TrackComp == nullptr&& Owner != nullptr)
 	{
 		TrackComp = Cast<UCPP_TrackMovementComponent>
@@ -21,6 +28,7 @@ void UCPP_TankAnimInstance::NativeInitializeAnimation()
 		if (TankMovementComp != nullptr)
 		{
 			TrackSpeed = TankMovementComp->GetTrackSpeed();
+			
 		}
 	}
 

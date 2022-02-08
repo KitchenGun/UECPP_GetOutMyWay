@@ -17,10 +17,12 @@ public:
 
 	UPROPERTY(BlueprintReadOnly,EditAnywhere,Category ="Track")
 	float TrackSpeed = 0;
-
+	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Turret")
 	float CurTurretAngle =0;
-
+	
+	UPROPERTY(BlueprintReadOnly,EditAnywhere,Category ="Mesh")
+	class USkeletalMeshComponent* TankMeshComp;
 
 public:
 	virtual void NativeInitializeAnimation() override;
