@@ -2,8 +2,7 @@
 #include "Tank/CPP_TankAnimInstance.h"
 #include "GameFramework/Actor.h"
 #include "Animation/AnimInstance.h"
-#include "Media/Public/IMediaEventSink.h"
-
+#include "Math/Vector.h"
 
 UCPP_TankPawnMovementComponent::UCPP_TankPawnMovementComponent()
 {
@@ -25,23 +24,28 @@ UCPP_TankPawnMovementComponent::UCPP_TankPawnMovementComponent()
 void UCPP_TankPawnMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void UCPP_TankPawnMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	//Engine
 	EngineControl();
 	Movement(DeltaTime);
+	//Turret
+	UpdateTurretState(DeltaTime);
 }
 
 void UCPP_TankPawnMovementComponent::SetWheelSpeed(float WheelSpeed)
 {
-	TrackSpeed = WheelSpeed*0.1f;
-	//if(IsAccelerating)
-	//	TrackSpeed = WheelSpeed;
-	//else
-	//	TrackSpeed=10*TurnValue;
+	if(IsAccelerating)
+	{
+		TrackSpeed = WheelSpeed*0.1f;
+	}
+	else
+	{
+		TrackSpeed = TurnValue*2.0f;
+	}
 }
 
 void UCPP_TankPawnMovementComponent::Movement(float DeltaTime)
@@ -220,6 +224,53 @@ void UCPP_TankPawnMovementComponent::RPMControl()
 	default:
 		break;
 	}
+}
+
+void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
+{
+	SightRotator = Owner->GetController()->GetControlRotation().Quaternion().Rotator();
+	TurretRotator = TankMesh->GetBoneQuaternion(L"turret_jnt").Rotator();
+	TurretAngle = TurretRotator.Yaw;
+	//tank 포탑 각도 가져옴
+	UE_LOG(LogTemp, Display, L"Sight%s", *SightRotator.ToString());
+	UE_LOG(LogTemp, Display, L"Turret%s", *TurretRotator.ToString());
+	if (!FMath::IsNearlyEqual(SightRotator.Yaw, TurretRotator.Yaw,0.1f))
+	{
+		//일치 하지 않을 경우
+		IsTurretAngleMatch = false;
+		TurretDir = TankMesh->GetBoneQuaternion(L"turret_jnt").Vector();
+		SightDir = SightRotator.Vector();
+		FVector CrossVec = FVector::CrossProduct(SightDir, TurretDir); //외적
+		if (FVector::DotProduct(CrossVec, FVector::UpVector) > 0) //내적
+			IsSightRight = false;
+		else
+			IsSightRight = true;
+
+		TurretMove(DeltaTime);
+	}
+	else
+	{
+		IsTurretAngleMatch = true;
+	}
+	
+}
+
+void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
+{
+	if(!IsTurretAngleMatch)
+	{
+		if(IsSightRight)
+		{
+			TurretAngle=TurretRotator.Yaw+(TurretTurnSpeed*DeltaTime);
+		}
+		else
+		{
+			TurretAngle=TurretRotator.Yaw-(TurretTurnSpeed*DeltaTime);
+		}
+		TurretAngle=FMath::Clamp(TurretAngle,-180.0f,180.0f);
+		
+	}
+	
 }
 
 void UCPP_TankPawnMovementComponent::OnEngineBreak()

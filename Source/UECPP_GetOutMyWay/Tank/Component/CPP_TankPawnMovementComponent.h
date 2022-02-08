@@ -22,15 +22,20 @@ public:
 	void Movement(float DeltaTime);
 	void OnMove(float value);
 	void OnTurn(float value);
+	
 	void OnEngineBreak();
 	void OffEngineBreak();
 
+	
 	//get&set
 	FORCEINLINE float GetTrackSpeed() { return TrackSpeed; }
+	FORCEINLINE float GetTurretAngle() { return TurretAngle; }
 private:
 	void EngineControl();
 	void RPMControl();
-
+	
+	void UpdateTurretState(float DeltaTime);
+	void TurretMove(float DeltaTime);
 private:
 	class APawn* Owner;
 
@@ -66,5 +71,14 @@ private:
 	float MinRPM = 200;
 	float MaxRPM = 900;
 
-	
+	//Turret
+	FRotator SightRotator = FRotator::ZeroRotator;
+	FRotator TurretRotator = FRotator::ZeroRotator; //world로 연산하도록 해야함
+	bool IsTurretAngleMatch = true;
+	bool IsSightRight = false;
+	FVector SightDir = FVector::ZeroVector;
+	FVector TurretDir = FVector::ZeroVector;
+	float TurretAngle = 0.0f;
+	//Turret 객체 별로 수정해야할 데이터 변수
+	float TurretTurnSpeed = 100.0f;
 };

@@ -70,5 +70,6 @@ void UCPP_TankAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (TankMovementComp != nullptr)
 	{
 		TrackSpeed = TankMovementComp->GetTrackSpeed();
+		CurTurretAngle = TankMovementComp->GetTurretAngle();
 	}
 }
