@@ -26,6 +26,7 @@ public:
 	void OnEngineBreak();
 	void OffEngineBreak();
 
+	bool GetIsRight(FVector TargetVec,FVector ForwardVec);
 	
 	//get&set
 	FORCEINLINE float GetTrackSpeed() { return TrackSpeed; }
@@ -75,7 +76,8 @@ private:
 	FRotator SightRotator = FRotator::ZeroRotator;
 	FRotator TurretRotator = FRotator::ZeroRotator; //world로 연산하도록 해야함
 	bool IsTurretAngleMatch = true;
-	bool IsSightRight = false;
+	bool IsSightRight = false; //차체 기준으로 오른쪽인가 왼쪽인가
+	bool IsTurretRight = false; //차체 기준으로 오른쪽인가 왼쪽인가
 	FVector SightDir = FVector::ZeroVector;
 	FVector TurretDir = FVector::ZeroVector;
 	float TurretAngle = 0.0f;

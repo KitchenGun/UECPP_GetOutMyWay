@@ -230,22 +230,16 @@ void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
 {
 	SightRotator = Owner->GetController()->GetControlRotation().Quaternion().Rotator();
 	TurretRotator = TankMesh->GetBoneQuaternion(L"turret_jnt").Rotator();
-	TurretAngle = TurretRotator.Yaw;
-	//tank 포탑 각도 가져옴
-	UE_LOG(LogTemp, Display, L"Sight%s", *SightRotator.ToString());
-	UE_LOG(LogTemp, Display, L"Turret%s", *TurretRotator.ToString());
+	
 	if (!FMath::IsNearlyEqual(SightRotator.Yaw, TurretRotator.Yaw,0.1f))
 	{
 		//일치 하지 않을 경우
 		IsTurretAngleMatch = false;
 		TurretDir = TankMesh->GetBoneQuaternion(L"turret_jnt").Vector();
 		SightDir = SightRotator.Vector();
-		FVector CrossVec = FVector::CrossProduct(SightDir, TurretDir); //외적
-		if (FVector::DotProduct(CrossVec, FVector::UpVector) > 0) //내적
-			IsSightRight = false;
-		else
-			IsSightRight = true;
-
+		//차체기준으로 왼쪽 오른쪽 알려줌 오른쪽이면 0~180 왼쪽이면 -180~0
+		IsSightRight = GetIsRight(SightDir,TankMesh->GetForwardVector());
+		IsTurretRight = GetIsRight(TurretDir,TankMesh->GetForwardVector());
 		TurretMove(DeltaTime);
 	}
 	else
@@ -259,16 +253,66 @@ void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 {
 	if(!IsTurretAngleMatch)
 	{
+		//포탑 기준으로 시야 각도까지 오른 왼쪽 회전값 합
+		float LeftAngel=0;
+		float RightAngle=0;
 		if(IsSightRight)
-		{
-			TurretAngle=TurretRotator.Yaw+(TurretTurnSpeed*DeltaTime);
+		{//sight가 오른
+			if(IsTurretRight)
+			{//turret이 오른
+				if(TurretAngle<SightRotator.Yaw)
+				{ //sight가 더 클 경우
+					TurretAngle = FMath::ClampAngle(TurretAngle+DeltaTime*TurretTurnSpeed,TurretAngle,SightRotator.Yaw);
+				}
+				else
+				{
+					TurretAngle = FMath::ClampAngle(TurretAngle-DeltaTime*TurretTurnSpeed,SightRotator.Yaw,TurretAngle);
+				}
+			}
+			else
+			{//TurretRotator.Yaw -일 경우
+				LeftAngel = abs(TurretRotator.Yaw)+SightRotator.Yaw;
+				RightAngle =(180-TurretRotator.Yaw)+(180-SightRotator.Yaw);
+				if(RightAngle>LeftAngel)
+				{
+					TurretAngle = TurretAngle+DeltaTime*TurretTurnSpeed;
+				}
+				else
+				{
+					TurretAngle = TurretAngle-DeltaTime*TurretTurnSpeed;
+				}
+				
+			}
 		}
 		else
-		{
-			TurretAngle=TurretRotator.Yaw-(TurretTurnSpeed*DeltaTime);
+		{//sight가 왼쪽------------수식 수정 필요(-180,180 이부분 넘어가면서 문제가 발생하는 듯함 그리고 왼쪽 회전 기능 문제가 있음)
+			if(IsTurretRight)
+			{//turret이 오른
+				LeftAngel = abs(SightRotator.Yaw)+TurretRotator.Yaw;
+				RightAngle =(180+SightRotator.Yaw)+(180-TurretRotator.Yaw);
+				if(RightAngle>LeftAngel)
+				{
+					TurretAngle = TurretAngle-DeltaTime*TurretTurnSpeed;
+				}
+				else
+				{
+					TurretAngle = TurretAngle+DeltaTime*TurretTurnSpeed;
+				}
+			}
+			else
+			{//TurretRotator.Yaw -일 경우
+				if(TurretAngle<SightRotator.Yaw)
+				{ //sight가 더 클 경우
+					TurretAngle = FMath::ClampAngle(TurretAngle-DeltaTime*TurretTurnSpeed,SightRotator.Yaw,TurretAngle);
+				}
+				else
+				{
+					TurretAngle = FMath::ClampAngle(TurretAngle+DeltaTime*TurretTurnSpeed,TurretAngle,SightRotator.Yaw);
+				}
+			}
 		}
-		TurretAngle=FMath::Clamp(TurretAngle,-180.0f,180.0f);
-		
+		UE_LOG(LogTemp,Display,L"LeftAngel  %f",LeftAngel);
+		UE_LOG(LogTemp,Display,L"RightAngle %f",RightAngle);
 	}
 	
 }
@@ -281,4 +325,13 @@ void UCPP_TankPawnMovementComponent::OnEngineBreak()
 void UCPP_TankPawnMovementComponent::OffEngineBreak()
 {
 	isBreak = false;
+}
+
+bool UCPP_TankPawnMovementComponent::GetIsRight(FVector TargetVec, FVector ForwardVec)
+{
+	FVector CrossVec = FVector::CrossProduct(TargetVec, ForwardVec); //외적
+	if (FVector::DotProduct(CrossVec, FVector::UpVector) > 0) //내적
+		return false;
+	else
+		return true;
 }
