@@ -238,19 +238,20 @@ void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
 		TurretDir = TankMesh->GetBoneQuaternion(L"turret_jnt").Vector();
 		SightDir = SightRotator.Vector();
 		//차체기준으로 왼쪽 오른쪽 알려줌 오른쪽이면 0~180 왼쪽이면 -180~0
-		IsSightRight = GetIsRight(SightDir,TankMesh->GetForwardVector());
-		IsTurretRight = GetIsRight(TurretDir,TankMesh->GetForwardVector());
-		TurretMove(DeltaTime);
+		IsSightRight = GetIsRight(SightDir,FVector::ForwardVector);
+		IsTurretRight = GetIsRight(TurretDir,FVector::ForwardVector);
 	}
 	else
 	{
 		IsTurretAngleMatch = true;
 	}
+	TurretMove(DeltaTime);
 	
 }
 
 void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 {
+	TurretAngleOffSet=Owner->GetActorRotation().Quaternion().Rotator().Yaw;
 	if(!IsTurretAngleMatch)
 	{
 		//포탑 기준으로 시야 각도까지 오른 왼쪽 회전값 합
@@ -260,32 +261,40 @@ void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 		{//sight가 오른
 			if(IsTurretRight)
 			{//turret이 오른
-				if(TurretAngle<SightRotator.Yaw)
+				if(TurretRotator.Yaw<SightRotator.Yaw)
 				{ //sight가 더 클 경우
-					TurretAngle = FMath::ClampAngle(TurretAngle+DeltaTime*TurretTurnSpeed,TurretAngle,SightRotator.Yaw);
+					if(TurretAngle+DeltaTime*TurretTurnSpeed<SightRotator.Yaw)
+						TurretAngle = TurretAngle+DeltaTime*TurretTurnSpeed;//FMath::ClampAngle(TurretAngle+DeltaTime*TurretTurnSpeed,0.0f,180);
+					else
+						TurretAngle = SightRotator.Yaw;
 				}
 				else
 				{
-					TurretAngle = FMath::ClampAngle(TurretAngle-DeltaTime*TurretTurnSpeed,SightRotator.Yaw,TurretAngle);
+					if(TurretAngle-DeltaTime*TurretTurnSpeed>SightRotator.Yaw)
+						TurretAngle = TurretAngle-DeltaTime*TurretTurnSpeed;
+					else
+						TurretAngle = SightRotator.Yaw;
 				}
 			}
 			else
 			{//TurretRotator.Yaw -일 경우
-				LeftAngel = abs(TurretRotator.Yaw)+SightRotator.Yaw;
-				RightAngle =(180-TurretRotator.Yaw)+(180-SightRotator.Yaw);
-				if(RightAngle>LeftAngel)
+				LeftAngel = (180+TurretRotator.Yaw)+(180-SightRotator.Yaw);
+				RightAngle = abs(TurretRotator.Yaw)+SightRotator.Yaw;
+				if(RightAngle<LeftAngel)
 				{
 					TurretAngle = TurretAngle+DeltaTime*TurretTurnSpeed;
 				}
 				else
 				{
-					TurretAngle = TurretAngle-DeltaTime*TurretTurnSpeed;
+					if(TurretRotator.Yaw-DeltaTime*TurretTurnSpeed<-180)
+						TurretAngle=180-(TurretAngle-DeltaTime*TurretTurnSpeed+180);
+					else
+						TurretAngle = TurretAngle-DeltaTime*TurretTurnSpeed;
 				}
-				
 			}
 		}
 		else
-		{//sight가 왼쪽------------수식 수정 필요(-180,180 이부분 넘어가면서 문제가 발생하는 듯함 그리고 왼쪽 회전 기능 문제가 있음)
+		{//sight가 왼쪽
 			if(IsTurretRight)
 			{//turret이 오른
 				LeftAngel = abs(SightRotator.Yaw)+TurretRotator.Yaw;
@@ -296,25 +305,31 @@ void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 				}
 				else
 				{
-					TurretAngle = TurretAngle+DeltaTime*TurretTurnSpeed;
+					if(TurretRotator.Yaw+DeltaTime*TurretTurnSpeed>180)
+						TurretAngle=-180+(TurretAngle+DeltaTime*TurretTurnSpeed-180);
+					else
+						TurretAngle = TurretAngle+DeltaTime*TurretTurnSpeed;
 				}
 			}
 			else
 			{//TurretRotator.Yaw -일 경우
-				if(TurretAngle<SightRotator.Yaw)
+				if(TurretRotator.Yaw<SightRotator.Yaw)
 				{ //sight가 더 클 경우
-					TurretAngle = FMath::ClampAngle(TurretAngle-DeltaTime*TurretTurnSpeed,SightRotator.Yaw,TurretAngle);
+					if(TurretAngle+DeltaTime*TurretTurnSpeed<SightRotator.Yaw)
+						TurretAngle = TurretAngle+DeltaTime*TurretTurnSpeed;//FMath::ClampAngle(TurretAngle+DeltaTime*TurretTurnSpeed,-180.0f,0);
+					else
+						TurretAngle = SightRotator.Yaw;
 				}
 				else
 				{
-					TurretAngle = FMath::ClampAngle(TurretAngle+DeltaTime*TurretTurnSpeed,TurretAngle,SightRotator.Yaw);
+					if(TurretAngle-DeltaTime*TurretTurnSpeed>SightRotator.Yaw)
+						TurretAngle = TurretAngle-DeltaTime*TurretTurnSpeed;//FMath::ClampAngle(TurretAngle-DeltaTime*TurretTurnSpeed,-180,0.0f);
+					else
+						TurretAngle = SightRotator.Yaw;
 				}
 			}
 		}
-		UE_LOG(LogTemp,Display,L"LeftAngel  %f",LeftAngel);
-		UE_LOG(LogTemp,Display,L"RightAngle %f",RightAngle);
 	}
-	
 }
 
 void UCPP_TankPawnMovementComponent::OnEngineBreak()

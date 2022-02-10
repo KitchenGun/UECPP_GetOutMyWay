@@ -17,7 +17,7 @@ public:
 
 	//ABP에 전달할 변수 설정 함수
 	void SetWheelSpeed(float WheelSpeed);
-
+	void SetTurretAngleDetail();
 	//이동
 	void Movement(float DeltaTime);
 	void OnMove(float value);
@@ -31,6 +31,7 @@ public:
 	//get&set
 	FORCEINLINE float GetTrackSpeed() { return TrackSpeed; }
 	FORCEINLINE float GetTurretAngle() { return TurretAngle; }
+	FORCEINLINE float GetTurretAngleOffset() { return TurretAngleOffSet; }
 private:
 	void EngineControl();
 	void RPMControl();
@@ -81,6 +82,7 @@ private:
 	FVector SightDir = FVector::ZeroVector;
 	FVector TurretDir = FVector::ZeroVector;
 	float TurretAngle = 0.0f;
+	float TurretAngleOffSet;
 	//Turret 객체 별로 수정해야할 데이터 변수
 	float TurretTurnSpeed = 100.0f;
 };
