@@ -89,7 +89,7 @@ ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
 	Turret->SetBoxExtent(FVector(200,160,50));
 	Turret->SetCollisionProfileName("PhysicsActor");
 	//camera
-	SpringArm->SetRelativeLocation(FVector(0, 0, 60));
+	SpringArm->SetRelativeLocation(FVector(0, 0, 260));
 	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->TargetArmLength = CamRange;
 

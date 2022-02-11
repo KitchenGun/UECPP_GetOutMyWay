@@ -34,6 +34,8 @@ void UCPP_TankPawnMovementComponent::TickComponent(float DeltaTime, ELevelTick T
 	Movement(DeltaTime);
 	//Turret
 	UpdateTurretState(DeltaTime);
+	//Gun
+	UpdateGunState(DeltaTime);
 }
 
 void UCPP_TankPawnMovementComponent::SetWheelSpeed(float WheelSpeed)
@@ -246,7 +248,6 @@ void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
 		IsTurretAngleMatch = true;
 	}
 	TurretMove(DeltaTime);
-	
 }
 
 void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
@@ -330,6 +331,47 @@ void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 			}
 		}
 	}
+}
+
+void UCPP_TankPawnMovementComponent::UpdateGunState(float DeltaTime)
+{
+	GunRotator = TankMesh->GetBoneQuaternion(L"gun_jnt").Rotator();
+	if(!FMath::IsNearlyEqual(SightRotator.Pitch, GunRotator.Pitch,0.1f))
+	{
+		//일치 하지 않을 경우
+		IsGunAngleMatch = false;
+		GunAngle = GunRotator.Pitch;
+		IsGunUpZero = GunAngle>=0?true:false;
+		IsSightUpZero = SightRotator.Pitch>=0?true:false;
+	}
+	else
+	{
+		IsGunAngleMatch = true;
+	}
+	GunMove(DeltaTime);
+}
+
+void UCPP_TankPawnMovementComponent::GunMove(float DeltaTime)
+{
+	if(!IsGunAngleMatch)
+	{
+		if(GunAngle<SightRotator.Pitch)
+		{
+			if(GunAngle+DeltaTime*GunMoveSpeed<SightRotator.Pitch)
+				GunAngle = FMath::Clamp(GunAngle+DeltaTime*GunMoveSpeed,-10.0f,20.0f);
+			else
+				GunAngle = FMath::Clamp(SightRotator.Pitch,-10.0f,20.0f);
+		}
+		else
+		{
+			if(GunAngle-DeltaTime*GunMoveSpeed>SightRotator.Pitch)
+				GunAngle = FMath::Clamp(GunAngle-DeltaTime*GunMoveSpeed,-10.0f,20.0f);
+			else
+				GunAngle = FMath::Clamp(SightRotator.Pitch,-10.0f,20.0f);
+		}
+	}
+	UE_LOG(LogTemp,Display,L"GunAngle %f",GunAngle);
+	UE_LOG(LogTemp,Display,L"SightRotator %f",SightRotator.Pitch);
 }
 
 void UCPP_TankPawnMovementComponent::OnEngineBreak()

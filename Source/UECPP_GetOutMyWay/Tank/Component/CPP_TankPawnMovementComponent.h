@@ -32,12 +32,15 @@ public:
 	FORCEINLINE float GetTrackSpeed() { return TrackSpeed; }
 	FORCEINLINE float GetTurretAngle() { return TurretAngle; }
 	FORCEINLINE float GetTurretAngleOffset() { return TurretAngleOffSet; }
+	FORCEINLINE float GetGunAngle() {return GunAngle;}
 private:
 	void EngineControl();
 	void RPMControl();
 	
 	void UpdateTurretState(float DeltaTime);
 	void TurretMove(float DeltaTime);
+	void UpdateGunState(float DeltaTime);
+	void GunMove(float DeltaTime);
 private:
 	class APawn* Owner;
 
@@ -85,4 +88,14 @@ private:
 	float TurretAngleOffSet;
 	//Turret 객체 별로 수정해야할 데이터 변수
 	float TurretTurnSpeed = 100.0f;
+
+	//Gun
+	bool IsGunAngleMatch = true;
+	FRotator GunRotator = FRotator::ZeroRotator;
+	bool IsGunUpZero=true;
+	bool IsSightUpZero=true;
+	float GunAngle=0.0f;
+	//Gun 객체 별로 수정해야할 데이터 변수
+	float GunMoveSpeed = 10.0f;
+	
 };
