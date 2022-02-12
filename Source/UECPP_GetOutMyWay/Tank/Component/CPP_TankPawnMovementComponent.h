@@ -33,6 +33,7 @@ public:
 	FORCEINLINE float GetTurretAngle() { return TurretAngle; }
 	FORCEINLINE float GetTurretAngleOffset() { return TurretAngleOffSet; }
 	FORCEINLINE float GetGunAngle() {return GunAngle;}
+	FORCEINLINE float GetGunAngleOffset() { return GunAngleOffSet; }
 private:
 	void EngineControl();
 	void RPMControl();
@@ -85,7 +86,7 @@ private:
 	FVector SightDir = FVector::ZeroVector;
 	FVector TurretDir = FVector::ZeroVector;
 	float TurretAngle = 0.0f;
-	float TurretAngleOffSet;
+	float TurretAngleOffSet=0.0f;
 	//Turret 객체 별로 수정해야할 데이터 변수
 	float TurretTurnSpeed = 100.0f;
 
@@ -95,7 +96,8 @@ private:
 	bool IsGunUpZero=true;
 	bool IsSightUpZero=true;
 	float GunAngle=0.0f;
+	float GunAngleOffSet=0.0f;
 	//Gun 객체 별로 수정해야할 데이터 변수
-	float GunMoveSpeed = 10.0f;
+	float GunMoveSpeed = 20.0f;
 	
 };

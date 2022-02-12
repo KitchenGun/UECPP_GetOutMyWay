@@ -72,7 +72,7 @@ private:
 	//sight
 	float CamRange = 800;
 	float BasicCamTurnSpeed = 100;
-	float PitchLimitMax = 360;
+	float PitchLimitMax = 20;
 	float PitchLimitMin = 270;
 
 };
