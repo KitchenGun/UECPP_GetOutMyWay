@@ -262,8 +262,6 @@ void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 		float LeftAngel=0;
 		float RightAngle=0;
 		FixErrorRotator(TurretAngle);
-		//UE_LOG(LogTemp,Display,L"turret%f",TurretAngle);
-		//UE_LOG(LogTemp,Display,L"sight%f",SightRotator.Yaw);
 		if(IsSightRight)
 		{//sight가 오른
 			if(IsTurretRight)
@@ -296,9 +294,6 @@ void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 				else
 				{//왼쪽으로 회전하는 경우
 					TurretAngle=TurretAngle-(DeltaTime*TurretTurnSpeed);
-					FixErrorRotator(TurretAngle);
-					UE_LOG(LogTemp,Display,L"turret%f",TurretAngle);
-					
 				}
 				
 			}
