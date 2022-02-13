@@ -1,4 +1,7 @@
 #include "Tank/Component/CPP_TankPawnMovementComponent.h"
+
+#include <ios>
+
 #include "Tank/CPP_TankAnimInstance.h"
 #include "GameFramework/Actor.h"
 #include "Animation/AnimInstance.h"
@@ -258,103 +261,79 @@ void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 		//포탑 기준으로 시야 각도까지 오른 왼쪽 회전값 합
 		float LeftAngel=0;
 		float RightAngle=0;
-		
+		FixErrorRotator(TurretAngle);
+		//UE_LOG(LogTemp,Display,L"turret%f",TurretAngle);
+		//UE_LOG(LogTemp,Display,L"sight%f",SightRotator.Yaw);
 		if(IsSightRight)
 		{//sight가 오른
 			if(IsTurretRight)
-			{//turret이 오른
-				if(TurretRotator.Yaw<SightRotator.Yaw)
-				{
-					//sight가 더 클 경우
-					if(TurretAngle+DeltaTime*TurretTurnSpeed<SightRotator.Yaw)
-					{
-						UE_LOG(LogTemp,Display,L"1");
-						TurretAngle = FMath::ClampAngle(TurretAngle+DeltaTime*TurretTurnSpeed,0.0f,SightRotator.Yaw);
-					}
-					else
-					{
-						UE_LOG(LogTemp,Display,L"2");
+			{//TurretRotator.Yaw +일 경우
+				if(TurretAngle<SightRotator.Yaw)
+				{//시야각이 더 큰 경우
+					TurretAngle=TurretAngle+(DeltaTime*TurretTurnSpeed);
+					if(TurretAngle>SightRotator.Yaw)
+					{//넘어갈 경우
 						TurretAngle = SightRotator.Yaw;
 					}
 				}
 				else
-				{
-					if(TurretAngle-DeltaTime*TurretTurnSpeed>SightRotator.Yaw)
-					{
-						UE_LOG(LogTemp,Display,L"3");
-						TurretAngle = FMath::ClampAngle(TurretAngle-DeltaTime*TurretTurnSpeed,SightRotator.Yaw,180.0f);
-					}
-					else
-					{
-						UE_LOG(LogTemp,Display,L"4");
+				{//시야각이 더 작은 경우
+					TurretAngle=TurretAngle-(DeltaTime*TurretTurnSpeed);
+					if(TurretAngle<SightRotator.Yaw)
+					{//넘어갈 경우
 						TurretAngle = SightRotator.Yaw;
 					}
 				}
 			}
 			else
 			{//TurretRotator.Yaw -일 경우
-				LeftAngel = (180+TurretRotator.Yaw)+(180-SightRotator.Yaw);
-				RightAngle = abs(TurretRotator.Yaw)+SightRotator.Yaw;
-				if(RightAngle<LeftAngel)
-				{
-					//if(TurretAngle-DeltaTime*TurretTurnSpeed>SightRotator.Yaw)
-					UE_LOG(LogTemp,Display,L"5");
-						TurretAngle = TurretAngle+DeltaTime*TurretTurnSpeed;
-					//else
-					//	TurretAngle = SightRotator.Yaw;
+				LeftAngel = (180-abs(TurretAngle))+(180-SightRotator.Yaw);
+				RightAngle = abs(TurretAngle)+SightRotator.Yaw;
+				if(LeftAngel>RightAngle)
+				{//오른쪽으로 회전하는 경우
+					TurretAngle=TurretAngle+(DeltaTime*TurretTurnSpeed);
 				}
 				else
-				{
-					UE_LOG(LogTemp,Display,L"6");
-					//if(TurretAngle-DeltaTime*TurretTurnSpeed>SightRotator.Yaw)
-						TurretAngle = TurretAngle-DeltaTime*TurretTurnSpeed;//FMath::ClampAngle(TurretAngle-DeltaTime*TurretTurnSpeed,-180,0.0f);
-					//else
-					//	TurretAngle = SightRotator.Yaw;
+				{//왼쪽으로 회전하는 경우
+					TurretAngle=TurretAngle-(DeltaTime*TurretTurnSpeed);
+					FixErrorRotator(TurretAngle);
+					UE_LOG(LogTemp,Display,L"turret%f",TurretAngle);
+					
 				}
+				
 			}
 		}
 		else
 		{//sight가 왼쪽
 			if(IsTurretRight)
-			{//turret이 오른
-				LeftAngel = abs(SightRotator.Yaw)+TurretRotator.Yaw;
-				RightAngle =(180+SightRotator.Yaw)+(180-TurretRotator.Yaw);
-				if(RightAngle>LeftAngel)
-				{
-					UE_LOG(LogTemp,Display,L"7");
-					TurretAngle = TurretAngle-DeltaTime*TurretTurnSpeed;
+			{//TurretRotator.Yaw +일 경우
+				LeftAngel = abs(SightRotator.Yaw)+TurretAngle;
+				RightAngle = (180-abs(SightRotator.Yaw))+(180-TurretAngle);
+				if(LeftAngel>RightAngle)
+				{//오른쪽으로 회전하는 경우
+					TurretAngle=TurretAngle+(DeltaTime*TurretTurnSpeed);
 				}
 				else
-				{
-					UE_LOG(LogTemp,Display,L"8");
-					TurretAngle = TurretAngle+DeltaTime*TurretTurnSpeed;
+				{//왼쪽으로 회전하는 경우
+					TurretAngle=TurretAngle-(DeltaTime*TurretTurnSpeed);
+					FixErrorRotator(TurretAngle);
 				}
 			}
 			else
 			{//TurretRotator.Yaw -일 경우
-				if(TurretRotator.Yaw<SightRotator.Yaw)
-				{ //sight가 더 클 경우
-					if(TurretAngle+DeltaTime*TurretTurnSpeed<SightRotator.Yaw)
-					{
-						UE_LOG(LogTemp,Display,L"9");
-						TurretAngle = TurretAngle+DeltaTime*TurretTurnSpeed;//FMath::ClampAngle(TurretAngle+DeltaTime*TurretTurnSpeed,-180.0f,0);
-					}
-					else
-					{
-						UE_LOG(LogTemp,Display,L"10");
+				if(TurretAngle<SightRotator.Yaw)
+				{//시야각이 더 큰 경우
+					TurretAngle=TurretAngle+(DeltaTime*TurretTurnSpeed);
+					if(TurretAngle>SightRotator.Yaw)
+					{//넘어갈 경우
 						TurretAngle = SightRotator.Yaw;
 					}
 				}
 				else
-				{
-					if(TurretAngle-DeltaTime*TurretTurnSpeed>SightRotator.Yaw)
-					{
-						UE_LOG(LogTemp,Display,L"11");
-						TurretAngle = TurretAngle-DeltaTime*TurretTurnSpeed;//FMath::ClampAngle(TurretAngle-DeltaTime*TurretTurnSpeed,-180,0.0f);
-					}
-					else
-					{
-						UE_LOG(LogTemp,Display,L"12");
+				{//시야각이 더 작은 경우
+					TurretAngle=TurretAngle-(DeltaTime*TurretTurnSpeed);
+					if(TurretAngle<SightRotator.Yaw)
+					{//넘어갈 경우
 						TurretAngle = SightRotator.Yaw;
 					}
 				}

@@ -34,6 +34,18 @@ public:
 	FORCEINLINE float GetTurretAngleOffset() { return TurretAngleOffSet; }
 	FORCEINLINE float GetGunAngle() {return GunAngle;}
 	FORCEINLINE float GetGunAngleOffset() { return GunAngleOffSet; }
+	
+	FORCEINLINE void FixErrorRotator(float &val)
+	{
+		if(val<-180)
+		{
+			val=180-(val+180);
+		}
+		else if(val>180)
+		{
+			val=-180+(val-180);
+		}
+	}
 private:
 	void EngineControl();
 	void RPMControl();
