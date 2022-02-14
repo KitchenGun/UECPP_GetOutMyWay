@@ -4,6 +4,15 @@
 #include "GameFramework/Pawn.h"
 #include "CPP_M1A1_Pawn.generated.h"
 
+
+UENUM(BlueprintType)
+enum class ECameraType : uint8
+{
+	THIRD		UMETA(DisplayName = "Third"),
+	GUNNER		UMETA(DisplayName = "Gunner"),
+	MAX
+};
+
 UCLASS()
 class UECPP_GETOUTMYWAY_API ACPP_M1A1_Pawn : public APawn
 {
@@ -20,6 +29,8 @@ protected:
 	//Camera
 	UPROPERTY(EditDefaultsOnly)
 	class UCameraComponent* Camera;
+	UPROPERTY(EditDefaultsOnly)
+	class USceneComponent* GunnerCamPos;
 	UPROPERTY(EditDefaultsOnly)
 	class USpringArmComponent* SpringArm;
 
@@ -63,6 +74,7 @@ private:
 	void OnVerticalLook(float value);
 	void OnHorizontalLook(float value);
 	void CamPitchLimitSmooth();
+	void CamChange();
 
 	void OnMoveForward(float value);
 	void OnMoveTurn(float value);
@@ -74,5 +86,9 @@ private:
 	float BasicCamTurnSpeed = 100;
 	float PitchLimitMax = 20;
 	float PitchLimitMin = 270;
+	ECameraType CamType = ECameraType::THIRD;
+
+	//APlayerController
+	APlayerController* PC = nullptr;
 
 };

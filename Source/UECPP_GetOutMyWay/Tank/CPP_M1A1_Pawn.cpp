@@ -8,8 +8,10 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 //actorComp
+#include "Camera/CameraAnim.h"
 #include "Component/CPP_TrackMovementComponent.h"
 #include "Component/CPP_TankPawnMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
@@ -44,7 +46,9 @@ ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
 	SpringArm->SetupAttachment(TankMesh);
 	Camera = CreateDefaultSubobject<UCameraComponent>(L"Camera");
 	Camera->SetupAttachment(SpringArm);
-
+	GunnerCamPos = CreateDefaultSubobject<USceneComponent>(L"GunnerCamPos");
+	GunnerCamPos->SetupAttachment(TankMesh);
+	
 	//actorcomp
 	TrackMovement = CreateDefaultSubobject<UCPP_TrackMovementComponent>(L"TrackMovement");
 	TankMovement = CreateDefaultSubobject<UCPP_TankPawnMovementComponent>(L"TankPawnMovement");
@@ -92,12 +96,15 @@ ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
 	SpringArm->SetRelativeLocation(FVector(0, 0, 260));
 	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->TargetArmLength = CamRange;
-
+	Camera->SetRelativeLocation(FVector(0,0,200));
+	GunnerCamPos->AttachToComponent(TankMesh,FAttachmentTransformRules::KeepRelativeTransform,L"GunnerCamPos");
+	GunnerCamPos->SetRelativeLocation(FVector(0,0,0));
 }
 
 void ACPP_M1A1_Pawn::BeginPlay()
 {
 	Super::BeginPlay();
+	PC = UGameplayStatics::GetPlayerController(this,0);
 }
 
 void ACPP_M1A1_Pawn::Tick(float DeltaTime)
@@ -116,6 +123,7 @@ void ACPP_M1A1_Pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	
 	PlayerInputComponent->BindAction("EngineBreak",IE_Pressed,this, &ACPP_M1A1_Pawn::OnEngineBreak);
 	PlayerInputComponent->BindAction("EngineBreak", IE_Released, this, &ACPP_M1A1_Pawn::OffEngineBreak);
+	PlayerInputComponent->BindAction("ViewChange",IE_Pressed,this,&ACPP_M1A1_Pawn::CamChange);
 }
 
 UPawnMovementComponent* ACPP_M1A1_Pawn::GetMovementComponent() const
@@ -125,7 +133,7 @@ UPawnMovementComponent* ACPP_M1A1_Pawn::GetMovementComponent() const
 
 void ACPP_M1A1_Pawn::OnVerticalLook(float value)
 {
-	AddControllerPitchInput(value * BasicCamTurnSpeed * GetWorld()->DeltaTimeSeconds);
+	AddControllerPitchInput(value * BasicCamTurnSpeed * GetWorld()->DeltaTimeSeconds);	
 }
 
 void ACPP_M1A1_Pawn::OnHorizontalLook(float value)
@@ -168,6 +176,26 @@ void ACPP_M1A1_Pawn::CamPitchLimitSmooth()
 			Controller->SetControlRotation(temp);
 		}
 	}
+}
+
+void ACPP_M1A1_Pawn::CamChange()
+{
+	static_cast<ECameraType>((uint8)CamType+1)==ECameraType::MAX
+		?CamType=static_cast<ECameraType>((uint8)0)
+		:CamType=static_cast<ECameraType>((uint8)CamType+1);
+	UE_LOG(LogTemp,Display,L"CamType::%s",*UEnum::GetValueAsString(CamType));
+
+	switch (CamType)
+	{
+	case ECameraType::THIRD:
+		PC->SetViewTargetWithBlend(Cast<AActor>(PC->GetPawnOrSpectator()),1);
+		break;
+		
+	case ECameraType::GUNNER:
+		PC->SetViewTargetWithBlend(Cast<AActor>(GunnerCamPos),1);
+		break;
+	}
+	
 }
 
 void ACPP_M1A1_Pawn::OnMoveForward(float value)
