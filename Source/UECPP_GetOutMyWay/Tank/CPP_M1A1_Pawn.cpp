@@ -46,9 +46,10 @@ ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
 	SpringArm->SetupAttachment(TankMesh);
 	Camera = CreateDefaultSubobject<UCameraComponent>(L"Camera");
 	Camera->SetupAttachment(SpringArm);
-	GunnerCamPos = CreateDefaultSubobject<USceneComponent>(L"GunnerCamPos");
-	GunnerCamPos->SetupAttachment(TankMesh);
-	
+	GunnerSpringArm = CreateDefaultSubobject<USpringArmComponent>("GunnerSpringArm");
+	GunnerSpringArm->SetupAttachment(TankMesh);
+	GunnerCam = CreateDefaultSubobject<UCameraComponent>(L"GunnerCam");
+	GunnerCam->SetupAttachment(GunnerSpringArm);
 	//actorcomp
 	TrackMovement = CreateDefaultSubobject<UCPP_TrackMovementComponent>(L"TrackMovement");
 	TankMovement = CreateDefaultSubobject<UCPP_TankPawnMovementComponent>(L"TankPawnMovement");
@@ -97,14 +98,20 @@ ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
 	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->TargetArmLength = CamRange;
 	Camera->SetRelativeLocation(FVector(0,0,200));
-	GunnerCamPos->AttachToComponent(TankMesh,FAttachmentTransformRules::KeepRelativeTransform,L"GunnerCamPos");
-	GunnerCamPos->SetRelativeLocation(FVector(0,0,0));
+	GunnerSpringArm->SetRelativeLocation(FVector(0, 0, 0));
+	GunnerSpringArm->bUsePawnControlRotation = true;
+	GunnerSpringArm->AttachToComponent(TankMesh,FAttachmentTransformRules::KeepWorldTransform,"GunnerCamPos");
+	GunnerCam->AttachToComponent(GunnerSpringArm,FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void ACPP_M1A1_Pawn::BeginPlay()
 {
 	Super::BeginPlay();
 	PC = UGameplayStatics::GetPlayerController(this,0);
+	//Ä«¸Þ¶ó
+	Camera->SetActive(true);
+	GunnerCam->SetActive(false);
+	bUseControllerRotationYaw = false;
 }
 
 void ACPP_M1A1_Pawn::Tick(float DeltaTime)
@@ -178,6 +185,8 @@ void ACPP_M1A1_Pawn::CamPitchLimitSmooth()
 	}
 }
 
+
+
 void ACPP_M1A1_Pawn::CamChange()
 {
 	static_cast<ECameraType>((uint8)CamType+1)==ECameraType::MAX
@@ -188,11 +197,12 @@ void ACPP_M1A1_Pawn::CamChange()
 	switch (CamType)
 	{
 	case ECameraType::THIRD:
-		PC->SetViewTargetWithBlend(Cast<AActor>(PC->GetPawnOrSpectator()),1);
+		Camera->SetActive(true);
+		GunnerCam->SetActive(false);
 		break;
-		
 	case ECameraType::GUNNER:
-		PC->SetViewTargetWithBlend(Cast<AActor>(GunnerCamPos),1);
+		GunnerCam->SetActive(true);
+		Camera->SetActive(false);
 		break;
 	}
 	

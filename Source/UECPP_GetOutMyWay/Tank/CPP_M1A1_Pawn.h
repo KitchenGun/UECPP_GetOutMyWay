@@ -30,10 +30,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	class UCameraComponent* Camera;
 	UPROPERTY(EditDefaultsOnly)
-	class USceneComponent* GunnerCamPos;
+	class UCameraComponent* GunnerCam;
+	UPROPERTY(EditDefaultsOnly)
+	class USpringArmComponent* GunnerSpringArm;
 	UPROPERTY(EditDefaultsOnly)
 	class USpringArmComponent* SpringArm;
-
+	
 	//Collision
 	UPROPERTY(VisibleDefaultsOnly)
 	class UBoxComponent* FrontUpper;
@@ -87,7 +89,7 @@ private:
 	float PitchLimitMax = 20;
 	float PitchLimitMin = 270;
 	ECameraType CamType = ECameraType::THIRD;
-
+	
 	//APlayerController
 	APlayerController* PC = nullptr;
 
