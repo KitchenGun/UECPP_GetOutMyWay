@@ -71,7 +71,7 @@ void UCPP_TankPawnMovementComponent::Movement(float DeltaTime)
 			Owner->SetActorRelativeLocation(NextLocation);
 		}
 		Owner->SetActorRelativeRotation(NextRotation);
-
+		TurretAngleOffSet=Owner->GetActorRotation().Quaternion().Rotator().Yaw;
 	}
 	NextLocation = FVector::ZeroVector;
 	NextRotation = FRotator::ZeroRotator;
@@ -255,7 +255,6 @@ void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
 
 void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 {
-	TurretAngleOffSet=Owner->GetActorRotation().Quaternion().Rotator().Yaw;
 	if(!IsTurretAngleMatch)
 	{
 		//포탑 기준으로 시야 각도까지 오른 왼쪽 회전값 합
