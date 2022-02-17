@@ -4,6 +4,7 @@
 #include "GameFramework/Pawn.h"
 #include "CPP_M1A1_Pawn.generated.h"
 
+DECLARE_DELEGATE(FFire);
 
 UENUM(BlueprintType)
 enum class ECameraType : uint8
@@ -57,9 +58,11 @@ protected:
 
 	class UCPP_TankPawnMovementComponent* TankMovement;
 
+	class UCPP_M1A1MainGunSystemComponent* GunSystem;
 public:
 	ACPP_M1A1_Pawn();
 
+	FFire FireFunc;
 protected:
 	virtual void BeginPlay() override;
 
@@ -71,17 +74,20 @@ public:
 	//get&set
 	//기존의 getmovementcomp 함수를 현재가지고 있는 함수로 교체하는 과정
 	FORCEINLINE virtual UPawnMovementComponent* GetMovementComponent() const override;
-
 private:
+	//sight
 	void OnVerticalLook(float value);
 	void OnHorizontalLook(float value);
 	void CamPitchLimitSmooth();
 	void CamChange();
-
+	//move
 	void OnMoveForward(float value);
 	void OnMoveTurn(float value);
 	void OnEngineBreak();
 	void OffEngineBreak();
+	//action
+	void OnMainGunFire();
+	
 private:
 	//sight
 	float CamRange = 800;
@@ -93,4 +99,5 @@ private:
 	//APlayerController
 	APlayerController* PC = nullptr;
 
+	
 };

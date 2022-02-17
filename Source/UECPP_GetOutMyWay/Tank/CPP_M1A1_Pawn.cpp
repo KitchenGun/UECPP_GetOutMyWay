@@ -1,4 +1,5 @@
 #include "Tank/CPP_M1A1_Pawn.h"
+#include "Kismet/GameplayStatics.h"
 //mesh
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -8,10 +9,9 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 //actorComp
-#include "Camera/CameraAnim.h"
 #include "Component/CPP_TrackMovementComponent.h"
 #include "Component/CPP_TankPawnMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
+#include "Component/CPP_M1A1MainGunSystemComponent.h"
 
 
 ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
@@ -53,6 +53,7 @@ ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
 	//actorcomp
 	TrackMovement = CreateDefaultSubobject<UCPP_TrackMovementComponent>(L"TrackMovement");
 	TankMovement = CreateDefaultSubobject<UCPP_TankPawnMovementComponent>(L"TankPawnMovement");
+	GunSystem = CreateDefaultSubobject<UCPP_M1A1MainGunSystemComponent>(L"GunSystem");
 	/*∞¥√º √ ±‚»≠*/
 	//mesh
 	ConstructorHelpers::FObjectFinder<UStaticMesh> smesh
@@ -131,6 +132,7 @@ void ACPP_M1A1_Pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("EngineBreak",IE_Pressed,this, &ACPP_M1A1_Pawn::OnEngineBreak);
 	PlayerInputComponent->BindAction("EngineBreak", IE_Released, this, &ACPP_M1A1_Pawn::OffEngineBreak);
 	PlayerInputComponent->BindAction("ViewChange",IE_Pressed,this,&ACPP_M1A1_Pawn::CamChange);
+	PlayerInputComponent->BindAction("Fire",IE_Pressed,this,&ACPP_M1A1_Pawn::OnMainGunFire);
 }
 
 UPawnMovementComponent* ACPP_M1A1_Pawn::GetMovementComponent() const
@@ -232,5 +234,11 @@ void ACPP_M1A1_Pawn::OnEngineBreak()
 void ACPP_M1A1_Pawn::OffEngineBreak()
 {
 	TankMovement->OffEngineBreak();
+}
+
+void ACPP_M1A1_Pawn::OnMainGunFire()
+{
+	if(FireFunc.IsBound())
+		FireFunc.Execute();
 }
 

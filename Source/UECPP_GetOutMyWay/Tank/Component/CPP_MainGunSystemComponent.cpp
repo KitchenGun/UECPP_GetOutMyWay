@@ -1,34 +1,34 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Tank/Component/CPP_MainGunSystemComponent.h"
 
-// Sets default values for this component's properties
 UCPP_MainGunSystemComponent::UCPP_MainGunSystemComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
-}
-
-
-// Called when the game starts
-void UCPP_MainGunSystemComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
 	
 }
 
-
-// Called every frame
-void UCPP_MainGunSystemComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UCPP_MainGunSystemComponent::BeginPlay()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	Super::BeginPlay();
+	
 }
+
+void UCPP_MainGunSystemComponent::ReloadDone()
+{
+	GetOwner()->GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
+	IsMainGunCanFire = true;
+	UE_LOG(LogTemp,Display,L"UP!");
+}
+
+void UCPP_MainGunSystemComponent::MainGunFire()
+{
+	if(IsMainGunCanFire)
+	{
+		IsMainGunCanFire = false;
+		UE_LOG(LogTemp,Display,L"fire");
+		GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle,this,&UCPP_MainGunSystemComponent::ReloadDone,ReloadTime,false);
+	}
+}
+
+
+
+
 

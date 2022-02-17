@@ -37,14 +37,19 @@ ACPP_Projectile::ACPP_Projectile()
 	MuzzleFlash->SetRelativeRotation(FRotator(0,0,0));
 	MuzzleFlash->SetRelativeLocation(FVector(250,0,0));
 	//세부 설정
+	Capsule->BodyInstance.SetCollisionProfileName("BlockAll");
+	Capsule->SetNotifyRigidBodyCollision(true);
 	ConstructorHelpers::FObjectFinder<UStaticMesh> shellMesh (L"StaticMesh'/Game/VigilanteContent/Shared/Particles/StaticMeshes/SM_BulletShell_01.SM_BulletShell_01'");
 	Shell->SetStaticMesh(shellMesh.Object);
+	Shell->BodyInstance.SetCollisionProfileName("NoCollision");
 	ConstructorHelpers::FObjectFinder<UStaticMesh> warheadMesh(L"StaticMesh'/Game/VigilanteContent/Shared/Particles/StaticMeshes/SM_RocketBooster_02_SM.SM_RocketBooster_02_SM'");
 	WarHead->SetStaticMesh(warheadMesh.Object);
+	WarHead->BodyInstance.SetCollisionProfileName("NoCollision");
 	ConstructorHelpers::FObjectFinder<UMaterial> warheadMat(L"Material'/Game/VigilanteContent/Shared/Levels/Platform/LOGO/Materials/M_Vigilante_Logo.M_Vigilante_Logo'");
 	WarHead->SetMaterial(0,warheadMat.Object);
 	ConstructorHelpers::FObjectFinder<UStaticMesh> effectMesh(L"StaticMesh'/Game/VigilanteContent/Shared/Particles/StaticMeshes/SM_RocketBooster_03_SM.SM_RocketBooster_03_SM'");
 	Effect->SetStaticMesh(effectMesh.Object);
+	Effect->BodyInstance.SetCollisionProfileName("NoCollision");
 	ConstructorHelpers::FObjectFinder<UParticleSystem> muzzleflashPS(L"ParticleSystem'/Game/VigilanteContent/Vehicles/West_Tank_M1A1Abrams/FX/PS_MuzzleFire_01_M1A1Abrams.PS_MuzzleFire_01_M1A1Abrams'");
 	MuzzleFlash->SetTemplate(muzzleflashPS.Object);
 	
@@ -56,12 +61,13 @@ ACPP_Projectile::ACPP_Projectile()
 void ACPP_Projectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	Capsule->OnComponentHit.AddDynamic(this, &ACPP_Projectile::OnHit);
+	ProjectileMovement->Velocity = FVector::ZeroVector;//FVector::ForwardVector * ProjectileMovement->InitialSpeed;
 }
 
 void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
-{
+{//상속 받은 다음 충돌시 결과를 다르게 보내는 것으로 여러 탄종을 구현할려고 함
 	Destroy();
 }
 
