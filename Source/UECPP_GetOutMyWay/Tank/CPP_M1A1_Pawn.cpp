@@ -153,12 +153,10 @@ void ACPP_M1A1_Pawn::OnHorizontalLook(float value)
 void ACPP_M1A1_Pawn::CamPitchLimitSmooth()
 {
 	float pitch = Controller->GetControlRotation().Pitch;
-	float limitVal = 0;
 	//max를 수정해야함
 	if (pitch < PitchLimitMin&&pitch>180)
 	{//범위를 벗어난 상태
-		pitch = FMath::ClampAngle(pitch, PitchLimitMin, PitchLimitMax);
-
+		pitch = FMath::Clamp(pitch, PitchLimitMin, 360.0f);
 		//범위에 맞는 값을 넣어준다
 		FRotator temp = FRotator(pitch, GetControlRotation().Yaw, GetControlRotation().Roll);
 		Controller->SetControlRotation(temp);
