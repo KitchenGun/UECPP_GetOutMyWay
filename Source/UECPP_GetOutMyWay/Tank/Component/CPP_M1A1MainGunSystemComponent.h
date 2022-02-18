@@ -17,6 +17,6 @@ protected:
 	void BeginPlay() override;
 private:
 	class ACPP_M1A1_Pawn* Owner;
-
-	float M1A1ReloadTime =5.0f;
+	
+	float M1A1ReloadTime =1.0f;
 };

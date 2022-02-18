@@ -53,16 +53,17 @@ ACPP_Projectile::ACPP_Projectile()
 	ConstructorHelpers::FObjectFinder<UParticleSystem> muzzleflashPS(L"ParticleSystem'/Game/VigilanteContent/Vehicles/West_Tank_M1A1Abrams/FX/PS_MuzzleFire_01_M1A1Abrams.PS_MuzzleFire_01_M1A1Abrams'");
 	MuzzleFlash->SetTemplate(muzzleflashPS.Object);
 	
-	ProjectileMovement->InitialSpeed = 2e+4f;
-	ProjectileMovement->MaxSpeed = 2e+4f;//20000
-	ProjectileMovement->ProjectileGravityScale = 10;
+	ProjectileMovement->InitialSpeed = 5e+4f;
+	ProjectileMovement->MaxSpeed = 5e+4f;
+	ProjectileMovement->ProjectileGravityScale = 0;
 }
 
 void ACPP_Projectile::BeginPlay()
 {
 	Super::BeginPlay();
 	Capsule->OnComponentHit.AddDynamic(this, &ACPP_Projectile::OnHit);
-	ProjectileMovement->Velocity = FVector::ZeroVector;//FVector::ForwardVector * ProjectileMovement->InitialSpeed;
+	//capsule이 회전되어 있어서 이렇게 변경해서 사용함 -> -Capsule->GetUpVector()
+	ProjectileMovement->Velocity = -Capsule->GetUpVector()*ProjectileMovement->InitialSpeed;
 }
 
 void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,

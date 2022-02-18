@@ -21,12 +21,15 @@ private:
 	void ReloadDone();
 	
 protected:	
+	UPROPERTY(EditDefaultsOnly, Category = "Shell")
+	TSubclassOf<class ACPP_Projectile> ProjectileClass;
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category=Shell)
-	class ACPP_Projectile* Projectile;
-	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category=Shell)
-	TArray<int>Ammunition;
+	TArray<int32>Ammunition;
 	//reload
 	FTimerHandle ReloadTimerHandle;
 	float ReloadTime = 1.0f;
 	bool IsMainGunCanFire = true;
+	//mesh
+	class USkeletalMeshComponent* TankMesh;
+	//Camera
 };
