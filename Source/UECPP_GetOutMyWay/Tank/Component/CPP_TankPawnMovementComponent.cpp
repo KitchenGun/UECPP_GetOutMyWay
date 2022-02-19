@@ -354,15 +354,59 @@ void UCPP_TankPawnMovementComponent::GunMove(float DeltaTime)
 {
 	if(!IsGunAngleMatch)
 	{
-		if(SightRotator.Pitch>GunAngle)
+		float TurretLocalRotationYaw = TankMesh->GetBoneQuaternion(L"turret_jnt",EBoneSpaces::ComponentSpace).Rotator().Yaw;
+		//130 -> -10 150 ->0
+		if(TurretLocalRotationYaw>0)
 		{
-			if(GunAngle+DeltaTime*GunMoveSpeed<FMath::ClampAngle(SightRotator.Pitch,-10.0f,20.0f))
-				GunAngle = GunAngle+DeltaTime*GunMoveSpeed;
+			if(TurretLocalRotationYaw>130)
+			{
+				if(TurretLocalRotationYaw>150)
+				{//150~max
+					GunMinElevation = 0.0f;
+				}
+				else
+				{//130~150
+					float value = (TurretLocalRotationYaw - 130)/20;
+					GunMinElevation=FMath::Lerp(-10,0,value);
+				}
+			}
+			else
+			{
+				GunMinElevation = -10.0f;
+			}
 		}
 		else
 		{
-			if(GunAngle-DeltaTime*GunMoveSpeed>FMath::ClampAngle(SightRotator.Pitch,-10.0f,20.0f))
-				GunAngle = GunAngle-DeltaTime*GunMoveSpeed;
+			if(TurretLocalRotationYaw<-130)
+			{
+				if(TurretLocalRotationYaw<-150)
+				{//-150~max
+					GunMinElevation = 0.0f;
+				}
+				else
+				{//-130~-150
+					float value = -(TurretLocalRotationYaw + 130)/20;
+					GunMinElevation=FMath::Lerp(-10,0,value);
+				}
+			}
+			else
+			{
+				GunMinElevation = -10.0f;
+			}
+		}
+		if(SightRotator.Pitch>GunAngle)
+		{
+			if(GunAngle+DeltaTime*GunMoveSpeed<FMath::ClampAngle(SightRotator.Pitch,GunMinElevation,GunMaxElevation))
+				GunAngle = GunAngle+DeltaTime*GunMoveSpeed;
+			else
+				GunAngle = FMath::ClampAngle(GunAngle,GunMinElevation,GunMaxElevation);
+		}
+		else
+		{
+			if(GunAngle-DeltaTime*GunMoveSpeed>FMath::ClampAngle(SightRotator.Pitch,GunMinElevation,GunMaxElevation))
+				GunAngle = FMath::ClampAngle(GunAngle-DeltaTime*GunMoveSpeed,GunMinElevation,GunMaxElevation);
+			else
+				GunAngle = FMath::ClampAngle(GunAngle,GunMinElevation,GunMaxElevation);
 		}
 	}
 }

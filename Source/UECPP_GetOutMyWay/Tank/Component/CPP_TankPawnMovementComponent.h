@@ -111,5 +111,7 @@ private:
 	float GunAngleOffSet=0.0f;
 	//Gun 객체 별로 수정해야할 데이터 변수
 	float GunMoveSpeed = 20.0f;
+	float GunMaxElevation = 20.0f;
+	float GunMinElevation = 10.0f;
 	
 };

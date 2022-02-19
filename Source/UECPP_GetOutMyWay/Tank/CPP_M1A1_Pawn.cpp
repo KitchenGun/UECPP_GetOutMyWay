@@ -102,6 +102,7 @@ ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
 	GunnerSpringArm->SetRelativeLocation(FVector(0, 0, 0));
 	GunnerSpringArm->bUsePawnControlRotation = true;
 	GunnerSpringArm->AttachToComponent(TankMesh,FAttachmentTransformRules::KeepWorldTransform,"GunnerCamPos");
+	GunnerCam->SetRelativeLocation(FVector(0,0,20));
 	GunnerCam->AttachToComponent(GunnerSpringArm,FAttachmentTransformRules::KeepRelativeTransform);
 }
 
