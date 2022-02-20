@@ -52,7 +52,14 @@ protected:
 	class UBoxComponent* RSide;
 	UPROPERTY(VisibleDefaultsOnly)
 	class UBoxComponent* Turret;
-
+	//Particle
+	UPROPERTY(EditDefaultsOnly)
+	class UParticleSystemComponent* MuzzleFlashEffect;
+	UPROPERTY(EditDefaultsOnly)
+	class UParticleSystemComponent* ShockWaveEffect;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<class UParticleSystemComponent*> WheelsEffect;
+	
 	//ActorComp
 	class UCPP_TrackMovementComponent* TrackMovement;
 

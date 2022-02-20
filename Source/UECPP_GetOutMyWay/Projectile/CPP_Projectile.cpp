@@ -53,8 +53,8 @@ ACPP_Projectile::ACPP_Projectile()
 	ConstructorHelpers::FObjectFinder<UParticleSystem> muzzleflashPS(L"ParticleSystem'/Game/VigilanteContent/Vehicles/West_Tank_M1A1Abrams/FX/PS_MuzzleFire_01_M1A1Abrams.PS_MuzzleFire_01_M1A1Abrams'");
 	MuzzleFlash->SetTemplate(muzzleflashPS.Object);
 	
-	ProjectileMovement->InitialSpeed = 5e+4f;
-	ProjectileMovement->MaxSpeed = 5e+4f;
+	ProjectileMovement->InitialSpeed = 1e+4f;
+	ProjectileMovement->MaxSpeed = 1e+4f;
 	ProjectileMovement->ProjectileGravityScale = 0;
 }
 

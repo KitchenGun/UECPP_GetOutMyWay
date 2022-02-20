@@ -9,9 +9,12 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 //actorComp
+#include <string>
+
 #include "Component/CPP_TrackMovementComponent.h"
 #include "Component/CPP_TankPawnMovementComponent.h"
 #include "Component/CPP_M1A1MainGunSystemComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 
 
 ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
@@ -50,6 +53,22 @@ ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
 	GunnerSpringArm->SetupAttachment(TankMesh);
 	GunnerCam = CreateDefaultSubobject<UCameraComponent>(L"GunnerCam");
 	GunnerCam->SetupAttachment(GunnerSpringArm);
+	//particle
+	MuzzleFlashEffect = CreateDefaultSubobject<UParticleSystemComponent>(L"MuzzleFlash");
+	MuzzleFlashEffect->SetupAttachment(TankMesh);
+	ShockWaveEffect = CreateDefaultSubobject<UParticleSystemComponent>(L"ShockWave");
+	ShockWaveEffect->SetupAttachment(TankMesh);
+	WheelsEffect.SetNum(8);
+	for(int i =0;i<WheelsEffect.Num();i++)
+	{
+		FString name = FString::Printf(TEXT("Wheel%d"),i);
+		WheelsEffect[i] = CreateDefaultSubobject<UParticleSystemComponent>(FName(name));
+		WheelsEffect[i]->SetupAttachment(TankMesh);
+		ConstructorHelpers::FObjectFinder<UParticleSystem> WheelParticle
+		(L"ParticleSystem'/Game/VigilanteContent/Shared/Particles/ParticleSystems/PS_Dust_WheelTrack_03.PS_Dust_WheelTrack_03'");
+		WheelsEffect[i]->Template = WheelParticle.Object;
+	}
+	
 	//actorcomp
 	TrackMovement = CreateDefaultSubobject<UCPP_TrackMovementComponent>(L"TrackMovement");
 	TankMovement = CreateDefaultSubobject<UCPP_TankPawnMovementComponent>(L"TankPawnMovement");
@@ -104,6 +123,13 @@ ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
 	GunnerSpringArm->AttachToComponent(TankMesh,FAttachmentTransformRules::KeepWorldTransform,"GunnerCamPos");
 	GunnerCam->SetRelativeLocation(FVector(0,0,20));
 	GunnerCam->AttachToComponent(GunnerSpringArm,FAttachmentTransformRules::KeepRelativeTransform);
+	//particle
+	MuzzleFlashEffect->AttachToComponent(TankMesh,FAttachmentTransformRules::KeepWorldTransform,"gun_1_jntSocket");
+	for(int i =0;i<WheelsEffect.Num();i++)
+	{
+		FString name = FString::Printf(TEXT("Wheel%d"),i);
+		WheelsEffect[i]->AttachToComponent(TankMesh,FAttachmentTransformRules::KeepRelativeTransform,FName(name));
+	}
 }
 
 void ACPP_M1A1_Pawn::BeginPlay()
