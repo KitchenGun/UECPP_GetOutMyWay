@@ -39,6 +39,8 @@ void UCPP_M1A1MainGunSystemComponent::MainGunFire()
 			FRotator Direction   = FRotator(TankMesh->GetSocketRotation("gun_1_jntSocket").Pitch,TankMesh->GetSocketRotation("gun_1_jntSocket").Yaw,0);
 
 			ACPP_Projectile* temp = GetWorld()->SpawnActor<ACPP_Projectile>(ProjectileClass,SpawnPos,Direction);
+			if(FireEffectFunc.IsBound())
+				FireEffectFunc.Execute();
 		}
 	}
 	//재장전관련 메소드는 Super	

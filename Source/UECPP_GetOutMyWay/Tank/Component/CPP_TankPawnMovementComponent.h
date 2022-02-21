@@ -34,7 +34,7 @@ public:
 	FORCEINLINE float GetTurretAngleOffset() { return TurretAngleOffSet; }
 	FORCEINLINE float GetGunAngle() {return GunAngle;}
 	FORCEINLINE float GetGunAngleOffset() { return GunAngleOffSet; }
-	
+	FORCEINLINE bool GetIsMove() {return IsAccelerating||IsTurning;}
 	FORCEINLINE void FixErrorRotator(float &val)
 	{
 		if(val<-180)
@@ -76,6 +76,7 @@ private:
 	int EngineGear = 0;
 	float RPM = 500;
 	bool IsAccelerating = false;
+	bool IsTurning = false;
 	float CurrentVelocity = 0;//
 	float Speed = 100;
 	bool isBreak = false;

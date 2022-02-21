@@ -26,8 +26,6 @@ private:
 	class UStaticMeshComponent* WarHead;
 	UPROPERTY(VisibleDefaultsOnly)
 	class UStaticMeshComponent* Effect;
-	UPROPERTY(VisibleDefaultsOnly)
-	class UParticleSystemComponent* MuzzleFlash;
 	
 	class UProjectileMovementComponent* ProjectileMovement;
 };

@@ -95,6 +95,10 @@ private:
 	void OffEngineBreak();
 	//action
 	void OnMainGunFire();
+	//particle
+	void OnWheelParticle();
+	UFUNCTION()
+	void OnFireParticle();
 	
 private:
 	//sight
@@ -106,6 +110,4 @@ private:
 	
 	//APlayerController
 	APlayerController* PC = nullptr;
-
-	
 };

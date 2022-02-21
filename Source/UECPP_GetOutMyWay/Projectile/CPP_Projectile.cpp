@@ -11,7 +11,7 @@ ACPP_Projectile::ACPP_Projectile()
 	Shell = CreateDefaultSubobject<UStaticMeshComponent>(L"Shell");
 	WarHead = CreateDefaultSubobject<UStaticMeshComponent>(L"WarHead");
 	Effect = CreateDefaultSubobject<UStaticMeshComponent>(L"Effect");
-	MuzzleFlash = CreateDefaultSubobject<UParticleSystemComponent>(L"MuzzleFlash");
+	
 	
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(L"ProjectileMovement");
 
@@ -19,7 +19,6 @@ ACPP_Projectile::ACPP_Projectile()
 	Shell->SetupAttachment(Capsule);
 	WarHead->SetupAttachment(Capsule);
 	Effect->SetupAttachment(Capsule);
-	MuzzleFlash->SetupAttachment(Effect);
 	//S*R*T
 	Capsule->SetRelativeRotation(FRotator(90,0,0));
 	Capsule->SetCapsuleHalfHeight(70);
@@ -33,9 +32,6 @@ ACPP_Projectile::ACPP_Projectile()
 	Effect->SetRelativeScale3D(FVector(0.4f,0.1f,0.1f));
 	Effect->SetRelativeRotation(FRotator(90,0,0));
 	Effect->SetRelativeLocation(FVector(0,0,-45));
-	MuzzleFlash->SetRelativeScale3D(FVector(2.5f,10.0f,10.0f));
-	MuzzleFlash->SetRelativeRotation(FRotator(0,0,0));
-	MuzzleFlash->SetRelativeLocation(FVector(250,0,0));
 	//세부 설정
 	Capsule->BodyInstance.SetCollisionProfileName("BlockAll");
 	Capsule->SetNotifyRigidBodyCollision(true);
@@ -50,8 +46,6 @@ ACPP_Projectile::ACPP_Projectile()
 	ConstructorHelpers::FObjectFinder<UStaticMesh> effectMesh(L"StaticMesh'/Game/VigilanteContent/Shared/Particles/StaticMeshes/SM_RocketBooster_03_SM.SM_RocketBooster_03_SM'");
 	Effect->SetStaticMesh(effectMesh.Object);
 	Effect->BodyInstance.SetCollisionProfileName("NoCollision");
-	ConstructorHelpers::FObjectFinder<UParticleSystem> muzzleflashPS(L"ParticleSystem'/Game/VigilanteContent/Vehicles/West_Tank_M1A1Abrams/FX/PS_MuzzleFire_01_M1A1Abrams.PS_MuzzleFire_01_M1A1Abrams'");
-	MuzzleFlash->SetTemplate(muzzleflashPS.Object);
 	
 	ProjectileMovement->InitialSpeed = 1e+4f;
 	ProjectileMovement->MaxSpeed = 1e+4f;
@@ -64,6 +58,7 @@ void ACPP_Projectile::BeginPlay()
 	Capsule->OnComponentHit.AddDynamic(this, &ACPP_Projectile::OnHit);
 	//capsule이 회전되어 있어서 이렇게 변경해서 사용함 -> -Capsule->GetUpVector()
 	ProjectileMovement->Velocity = -Capsule->GetUpVector()*ProjectileMovement->InitialSpeed;
+	InitialLifeSpan = 5.0f;
 }
 
 void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,

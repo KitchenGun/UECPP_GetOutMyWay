@@ -31,5 +31,4 @@ protected:
 	bool IsMainGunCanFire = true;
 	//mesh
 	class USkeletalMeshComponent* TankMesh;
-	//Camera
 };

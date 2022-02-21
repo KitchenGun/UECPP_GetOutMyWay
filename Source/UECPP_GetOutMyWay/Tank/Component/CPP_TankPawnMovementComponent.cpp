@@ -136,6 +136,11 @@ void UCPP_TankPawnMovementComponent::OnTurn(float value)
 		{
 			RPM = IdleRPM;
 		}
+		IsTurning = true;
+	}
+	else if (FMath::IsNearlyZero(value))
+	{
+		 IsTurning = false;
 	}
 
 	NextRotation.Yaw+=value;
