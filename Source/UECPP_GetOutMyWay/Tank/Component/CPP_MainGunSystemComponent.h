@@ -4,7 +4,8 @@
 #include "Components/ActorComponent.h"
 #include "CPP_MainGunSystemComponent.generated.h"
 
-
+DECLARE_DELEGATE(FFireEffect)
+DECLARE_DELEGATE(FReloadDone)
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UECPP_GETOUTMYWAY_API UCPP_MainGunSystemComponent : public UActorComponent
@@ -15,6 +16,11 @@ public:
 	UCPP_MainGunSystemComponent();
 	UFUNCTION()
 	virtual void MainGunFire();
+
+	FFireEffect FireEffectFunc;
+	FReloadDone GunReloadDoneFunc;
+	
+	FORCEINLINE bool GetIsMainGunCanFire() {return IsMainGunCanFire;}
 protected:
 	virtual void BeginPlay() override;
 private:

@@ -52,6 +52,7 @@ protected:
 	class UBoxComponent* RSide;
 	UPROPERTY(VisibleDefaultsOnly)
 	class UBoxComponent* Turret;
+
 	//Particle
 	UPROPERTY(EditDefaultsOnly)
 	class UParticleSystemComponent* MuzzleFlashEffect;
@@ -59,7 +60,15 @@ protected:
 	class UParticleSystemComponent* ShockWaveEffect;
 	UPROPERTY(EditDefaultsOnly)
 	TArray<class UParticleSystemComponent*> WheelsEffect;
-	
+
+	//sound
+	UPROPERTY(VisibleDefaultsOnly)
+	class UAudioComponent* EngineAudio;
+	UPROPERTY(VisibleDefaultsOnly)
+	class UAudioComponent* IdleAudio;
+	UPROPERTY(VisibleDefaultsOnly)
+	class UAudioComponent* GunSystemAudio;
+
 	//ActorComp
 	class UCPP_TrackMovementComponent* TrackMovement;
 
@@ -81,8 +90,14 @@ public:
 	//get&set
 	//기존의 getmovementcomp 함수를 현재가지고 있는 함수로 교체하는 과정
 	FORCEINLINE virtual UPawnMovementComponent* GetMovementComponent() const override;
-	
 private:
+	//Setup
+	void RootSet();
+	void CollisionSet();
+	void CameraSet();
+	void ParticleSet();
+	void SoundSet();
+	
 	//sight
 	void OnVerticalLook(float value);
 	void OnHorizontalLook(float value);
@@ -99,7 +114,17 @@ private:
 	void OnWheelParticle();
 	UFUNCTION()
 	void OnFireParticle();
-	
+	//Sound
+	UFUNCTION()
+	void IdleSoundPlay();
+	void EngineSoundPlay();
+	UFUNCTION()
+	void EngineSoundStop();
+	void GunSystemSoundPlay();
+	UFUNCTION()
+	void GunSystemSoundStop();
+	UFUNCTION()
+	void GunSystemSoundReloadDone();
 private:
 	//sight
 	float CamRange = 800;
@@ -110,4 +135,21 @@ private:
 	
 	//APlayerController
 	APlayerController* PC = nullptr;
+
+	//sound
+	class USoundWave* EngineStartSound;
+	class USoundWave* EngineLoopSound;
+	class USoundWave* EngineEndSound;
+	
+	class USoundWave* IdleStartSound;
+	class USoundWave* IdleLoopSound;
+	class USoundWave* IdleEndSound;
+
+	TArray<class USoundCue*> MainGunFireSound;
+	class USoundCue* MainGunReloadSound;
+	TArray<class USoundCue*> MainGunReloadDoneSound;
+	bool IsMoveBefore=false;
+	bool IsEngineEnd = true;
+	bool IsGunReloadDone=true;
+
 };
