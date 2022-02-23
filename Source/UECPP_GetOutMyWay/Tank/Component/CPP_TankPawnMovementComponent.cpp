@@ -240,6 +240,12 @@ void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
 	
 	if (!FMath::IsNearlyEqual(SightRotator.Yaw, TurretRotator.Yaw,0.1f))
 	{
+		if(IsTurretAngleMatch)
+		{
+			if(TurretMoveStartFunc.IsBound())
+				TurretMoveStartFunc.Execute();			
+		}
+		
 		//일치 하지 않을 경우
 		IsTurretAngleMatch = false;
 		TurretDir = TankMesh->GetBoneQuaternion(L"turret_jnt").Vector();
@@ -250,6 +256,11 @@ void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
 	}
 	else
 	{
+		if(!IsTurretAngleMatch)
+		{
+			if(TurretMoveEndFunc.IsBound())
+				TurretMoveEndFunc.Execute();			
+		}
 		IsTurretAngleMatch = true;
 	}
 	TurretMove(DeltaTime);

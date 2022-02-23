@@ -49,6 +49,11 @@ void ACPP_M1A1_Pawn::BeginPlay()
 		GunSystem->FireEffectFunc.BindUFunction(this,"OnFireParticle");
 		GunSystem->GunReloadDoneFunc.BindUFunction(this,"GunSystemSoundReloadDone");
 	}
+	if(IsValid(TankMovement))
+	{
+		TankMovement->TurretMoveStartFunc.BindUFunction(this,"TurretMoveLoop");
+		TankMovement->TurretMoveEndFunc.BindUFunction(this,"TurretMoveEnd");
+	}	
 	//카메라
 	Camera->SetActive(true);
 	GunnerCam->SetActive(false);
@@ -223,18 +228,27 @@ void ACPP_M1A1_Pawn::ParticleSet()
 void ACPP_M1A1_Pawn::SoundSet()
 {
 	EngineAudio = CreateDefaultSubobject<UAudioComponent>(L"EngineAudio");
-	EngineAudio->SetupAttachment(TankMesh);
+	EngineAudio->SetupAttachment(Engine);
 	IdleAudio = CreateDefaultSubobject<UAudioComponent>(L"IdleAudio");
 	IdleAudio->SetupAttachment(TankMesh);
 	GunSystemAudio = CreateDefaultSubobject<UAudioComponent>(L"GunSystemAudio");
 	GunSystemAudio->SetupAttachment(TankMesh);
+	TurretSystemAudio = CreateDefaultSubobject<UAudioComponent>(L"TurretSystemAudio");
+	TurretSystemAudio->SetupAttachment(TankMesh);
+	
 	ConstructorHelpers::FObjectFinder<USoundAttenuation> EngineAttenuation
 	(L"SoundAttenuation'/Game/BP/Sound/Attenuation/EngineSoundAttenuation.EngineSoundAttenuation'");
+	EngineSoundAttenuation = EngineAttenuation.Object;
 	IdleAudio->AttenuationSettings = EngineAttenuation.Object;
 	EngineAudio->AttenuationSettings = EngineAttenuation.Object;
 	ConstructorHelpers::FObjectFinder<USoundAttenuation> MainGunAttenuation
 	(L"SoundAttenuation'/Game/BP/Sound/Attenuation/MainGunSoundAttenuation.MainGunSoundAttenuation'");
 	GunSystemAudio->AttenuationSettings = MainGunAttenuation.Object;
+	MainGunSoundAttenuation = MainGunAttenuation.Object;
+	ConstructorHelpers::FObjectFinder<USoundAttenuation> TurretAttenuation
+	(L"SoundAttenuation'/Game/BP/Sound/Attenuation/TurretSoundAttenuation.TurretSoundAttenuation'");
+	TurretSoundAttenuation = TurretAttenuation.Object;
+	TurretSystemAudio->AttenuationSettings = TurretSoundAttenuation;
 	/*객체 초기화*/
 	MainGunFireSound.SetNum(6);
 	MainGunReloadDoneSound.SetNum(3);
@@ -289,12 +303,20 @@ void ACPP_M1A1_Pawn::SoundSet()
 	ConstructorHelpers::FObjectFinder<USoundCue> MainGunReloadDoneCue2
 	(L"SoundCue'/Game/Sound/Tank/Reload/120mm_Cannon_Reload_M1A2_End_Wave_2_0_0_Cue.120mm_Cannon_Reload_M1A2_End_Wave_2_0_0_Cue'");
 	MainGunReloadDoneSound[2]=MainGunReloadDoneCue2.Object;
+
+	ConstructorHelpers::FObjectFinder<USoundWave> TurretLoop
+	(L"SoundWave'/Game/Sound/Tank/Turret/Turret_Loop_01_Wave_0_0_0.Turret_Loop_01_Wave_0_0_0'");
+	TurretLoopSound = TurretLoop.Object;
+	ConstructorHelpers::FObjectFinder<USoundWave> TurretEnd
+	(L"SoundWave'/Game/Sound/Tank/Turret/Turret_Start_Stop_Wave_0_3_0.Turret_Start_Stop_Wave_0_3_0'");
+	TurretEndSound = TurretEnd.Object;
 	
 	IdleAudio->Sound = IdleStartSound;
 	IdleAudio->VolumeMultiplier = 0.2f;
 	EngineAudio->Sound = EngineStartSound;
 	EngineAudio->VolumeMultiplier = 0.3f;
 	GunSystemAudio->VolumeMultiplier=0.5f;
+	TurretSystemAudio->VolumeMultiplier=0.3f;
 }
 
 void ACPP_M1A1_Pawn::OnVerticalLook(float value)
@@ -466,6 +488,7 @@ void ACPP_M1A1_Pawn::EngineSoundStop()
 
 void ACPP_M1A1_Pawn::GunSystemSoundPlay()
 {
+	GunSystemAudio->AttenuationSettings = MainGunSoundAttenuation;
 	if(CamType==ECameraType::THIRD)
 	{
 		GunSystemAudio->Sound = MainGunFireSound[UKismetMathLibrary::RandomIntegerInRange(0,1)];
@@ -483,6 +506,7 @@ void ACPP_M1A1_Pawn::GunSystemSoundStop()
 {
 	if(!GunSystem->GetIsMainGunCanFire())
 	{
+		GunSystemAudio->AttenuationSettings = TurretSoundAttenuation;
 		GunSystemAudio->Sound= MainGunReloadDoneSound[UKismetMathLibrary::RandomIntegerInRange(0,2)];
 		GunSystemAudio->Play();
 	}
@@ -490,8 +514,25 @@ void ACPP_M1A1_Pawn::GunSystemSoundStop()
 
 void ACPP_M1A1_Pawn::GunSystemSoundReloadDone()
 {
+	GunSystemAudio->AttenuationSettings = TurretSoundAttenuation;
 	GunSystemAudio->Sound= MainGunReloadSound;
 	GunSystemAudio->Play();
+}
+
+void ACPP_M1A1_Pawn::TurretMoveLoop()
+{
+	TurretSystemAudio->Sound = TurretLoopSound;
+	TurretSystemAudio->Play();
+}
+
+void ACPP_M1A1_Pawn::TurretMoveEnd()
+{
+	if(TurretSystemAudio->Sound==TurretLoopSound)
+	{
+		TurretSystemAudio->Sound = TurretEndSound;
+		TurretSystemAudio->Play();
+	}
+	
 }
 
 

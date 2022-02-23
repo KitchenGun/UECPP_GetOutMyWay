@@ -68,7 +68,8 @@ protected:
 	class UAudioComponent* IdleAudio;
 	UPROPERTY(VisibleDefaultsOnly)
 	class UAudioComponent* GunSystemAudio;
-
+	UPROPERTY(VisibleDefaultsOnly)
+	class UAudioComponent* TurretSystemAudio;
 	//ActorComp
 	class UCPP_TrackMovementComponent* TrackMovement;
 
@@ -125,6 +126,10 @@ private:
 	void GunSystemSoundStop();
 	UFUNCTION()
 	void GunSystemSoundReloadDone();
+	UFUNCTION()
+	void TurretMoveLoop();
+	UFUNCTION()
+	void TurretMoveEnd();
 private:
 	//sight
 	float CamRange = 800;
@@ -145,6 +150,9 @@ private:
 	class USoundWave* IdleLoopSound;
 	class USoundWave* IdleEndSound;
 
+	class USoundWave* TurretLoopSound;
+	class USoundWave* TurretEndSound;
+	
 	TArray<class USoundCue*> MainGunFireSound;
 	class USoundCue* MainGunReloadSound;
 	TArray<class USoundCue*> MainGunReloadDoneSound;
@@ -152,4 +160,8 @@ private:
 	bool IsEngineEnd = true;
 	bool IsGunReloadDone=true;
 
+	class USoundAttenuation* MainGunSoundAttenuation;
+	class USoundAttenuation* EngineSoundAttenuation;
+	class USoundAttenuation* TurretSoundAttenuation;
+	
 };

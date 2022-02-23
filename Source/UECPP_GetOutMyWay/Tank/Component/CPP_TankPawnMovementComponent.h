@@ -4,6 +4,9 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "CPP_TankPawnMovementComponent.generated.h"
 
+DECLARE_DYNAMIC_DELEGATE(FTurretMoveStart);
+DECLARE_DYNAMIC_DELEGATE(FTurretMoveEnd);
+
 UCLASS()
 class UECPP_GETOUTMYWAY_API UCPP_TankPawnMovementComponent : public UPawnMovementComponent
 {
@@ -46,6 +49,10 @@ public:
 			val=-180+(val-180);
 		}
 	}
+
+public:
+	FTurretMoveStart TurretMoveStartFunc;
+	FTurretMoveEnd TurretMoveEndFunc;
 private:
 	void EngineControl();
 	void RPMControl();
