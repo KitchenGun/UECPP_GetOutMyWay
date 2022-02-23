@@ -1,5 +1,7 @@
 #include "Tank/CPP_M1A1_Pawn.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Particles/ParticleSystemComponent.h"
 //mesh
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -16,8 +18,6 @@
 #include "Component/CPP_TrackMovementComponent.h"
 #include "Component/CPP_TankPawnMovementComponent.h"
 #include "Component/CPP_M1A1MainGunSystemComponent.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Particles/ParticleSystemComponent.h"
 
 
 ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
@@ -447,6 +447,39 @@ void ACPP_M1A1_Pawn::OnFireParticle()
 	MuzzleFlashEffect->Activate(true);
 	ShockWaveEffect->Activate(true);
 	GunSystemSoundPlay();
+	FVector Start = MuzzleFlashEffect->GetComponentLocation();
+	FVector End = MuzzleFlashEffect->GetComponentLocation();
+	TArray<AActor*> ignore;
+	//ignore.Add(this);
+	TArray<FHitResult> HitResults;
+	TArray<AActor*> ImpactArray;
+	float blastRange = 500;
+	float ShockWaveForce=4e+3;
+	const bool Hit =
+		UKismetSystemLibrary::SphereTraceMulti(GetWorld(),Start,End,blastRange,
+			ETraceTypeQuery::TraceTypeQuery8,false,ignore,EDrawDebugTrace::ForDuration,HitResults,true);
+	if(Hit)
+	{
+		int32 index;
+		for(FHitResult temp:HitResults)
+		{
+			AActor* tempActor=Cast<AActor>(temp.Actor);
+			if(IsValid(tempActor))
+			{
+				ImpactArray.Find(tempActor,index);
+				if(index==INDEX_NONE)
+				{
+					ImpactArray.Add(tempActor);
+					UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(tempActor->GetRootComponent());
+					if(IsValid(MeshComponent)&&MeshComponent->BodyInstance.bSimulatePhysics)
+					{
+						MeshComponent->AddImpulse(FVector(MeshComponent->GetComponentLocation()-(Start-FVector(0,200,0)))*ShockWaveForce);
+					}
+				}
+			}
+		}
+	}
+	
 }
 
 void ACPP_M1A1_Pawn::IdleSoundPlay()
