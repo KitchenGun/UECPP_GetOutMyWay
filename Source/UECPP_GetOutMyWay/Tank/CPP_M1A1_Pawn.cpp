@@ -369,7 +369,6 @@ void ACPP_M1A1_Pawn::CamChange()
 	static_cast<ECameraType>((uint8)CamType+1)==ECameraType::MAX
 		?CamType=static_cast<ECameraType>((uint8)0)
 		:CamType=static_cast<ECameraType>((uint8)CamType+1);
-	UE_LOG(LogTemp,Display,L"CamType::%s",*UEnum::GetValueAsString(CamType));
 
 	switch (CamType)
 	{

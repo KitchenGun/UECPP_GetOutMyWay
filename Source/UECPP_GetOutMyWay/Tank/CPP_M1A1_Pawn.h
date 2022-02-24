@@ -70,6 +70,7 @@ protected:
 	class UAudioComponent* GunSystemAudio;
 	UPROPERTY(VisibleDefaultsOnly)
 	class UAudioComponent* TurretSystemAudio;
+
 	//ActorComp
 	class UCPP_TrackMovementComponent* TrackMovement;
 
@@ -82,7 +83,6 @@ public:
 	FFire FireFunc;
 protected:
 	virtual void BeginPlay() override;
-
 public:	
 	virtual void Tick(float DeltaTime) override;
 
@@ -163,5 +163,6 @@ private:
 	class USoundAttenuation* MainGunSoundAttenuation;
 	class USoundAttenuation* EngineSoundAttenuation;
 	class USoundAttenuation* TurretSoundAttenuation;
+
 	
 };
