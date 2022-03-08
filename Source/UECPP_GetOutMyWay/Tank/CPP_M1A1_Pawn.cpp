@@ -63,6 +63,8 @@ void ACPP_M1A1_Pawn::BeginPlay()
 	IdleAudio->OnAudioFinished.AddDynamic(this,&ACPP_M1A1_Pawn::IdleSoundPlay);
 	EngineAudio->OnAudioFinished.AddDynamic(this,&ACPP_M1A1_Pawn::EngineSoundStop);
 	GunSystemAudio->OnAudioFinished.AddDynamic(this,&ACPP_M1A1_Pawn::GunSystemSoundStop);
+	//Damage
+	HP = MAX_HP;
 }
 
 void ACPP_M1A1_Pawn::Tick(float DeltaTime)
@@ -83,6 +85,15 @@ void ACPP_M1A1_Pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("EngineBreak", IE_Released, this, &ACPP_M1A1_Pawn::OffEngineBreak);
 	PlayerInputComponent->BindAction("ViewChange",IE_Pressed,this,&ACPP_M1A1_Pawn::CamChange);
 	PlayerInputComponent->BindAction("Fire",IE_Pressed,this,&ACPP_M1A1_Pawn::OnMainGunFire);
+}
+
+float ACPP_M1A1_Pawn::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	HP-=DamageAmount;
+	UE_LOG(LogTemp,Display,L"%.2f",HP);
+	
+	return 0.0f;
 }
 
 UPawnMovementComponent* ACPP_M1A1_Pawn::GetMovementComponent() const
@@ -172,6 +183,7 @@ void ACPP_M1A1_Pawn::CameraSet()
 	GunnerSpringArm->SetupAttachment(TankMesh);
 	GunnerCam = CreateDefaultSubobject<UCameraComponent>(L"GunnerCam");
 	GunnerCam->SetupAttachment(GunnerSpringArm);
+	
 	/*°´Ã¼ ÃÊ±âÈ­*/
 	//camera
 	SpringArm->SetRelativeLocation(FVector(0, 0, 260));
@@ -181,9 +193,9 @@ void ACPP_M1A1_Pawn::CameraSet()
 	GunnerSpringArm->SetRelativeLocation(FVector(0, 0, 0));
 	GunnerSpringArm->bUsePawnControlRotation = true;
 	GunnerSpringArm->TargetArmLength = 0;
-	GunnerSpringArm->AttachToComponent(TankMesh,FAttachmentTransformRules::KeepWorldTransform,"GunnerCamPos");
+	GunnerSpringArm->SetupAttachment(TankMesh,"GunnerCamPos");
 	GunnerCam->SetRelativeLocation(FVector(0,0,20));
-	GunnerCam->AttachToComponent(GunnerSpringArm,FAttachmentTransformRules::KeepRelativeTransform);
+	GunnerCam->SetupAttachment(GunnerSpringArm);
 }
 
 void ACPP_M1A1_Pawn::ParticleSet()
@@ -204,13 +216,13 @@ void ACPP_M1A1_Pawn::ParticleSet()
 	ConstructorHelpers::FObjectFinder<UParticleSystem> MuzzleParticle
 	(L"ParticleSystem'/Game/VigilanteContent/Vehicles/West_Tank_M1A1Abrams/FX/PS_MuzzleFire_01_M1A1Abrams.PS_MuzzleFire_01_M1A1Abrams'");
 	MuzzleFlashEffect->Template = MuzzleParticle.Object;
-	MuzzleFlashEffect->AttachToComponent(TankMesh,FAttachmentTransformRules::KeepWorldTransform,"gun_1_jntSocket");
+	MuzzleFlashEffect->SetupAttachment(TankMesh,"gun_1_jntSocket");
 	MuzzleFlashEffect->bAutoActivate = false;
 	MuzzleFlashEffect->bAutoDestroy = false;
 	ConstructorHelpers::FObjectFinder<UParticleSystem> ShockWaveParticle
 	(L"ParticleSystem'/Game/VigilanteContent/Vehicles/West_Tank_M1A1Abrams/FX/PS_ShockWave_M1A1Abrams.PS_ShockWave_M1A1Abrams'");
 	ShockWaveEffect->Template = ShockWaveParticle.Object;
-	ShockWaveEffect->AttachToComponent(TankMesh,FAttachmentTransformRules::KeepRelativeTransform,"root_jnt");
+	ShockWaveEffect->SetupAttachment(TankMesh,"root_jnt");
 	ShockWaveEffect->bAutoActivate = false;
 	ShockWaveEffect->bAutoDestroy = false;
 	ConstructorHelpers::FObjectFinder<UParticleSystem> WheelParticle
@@ -218,7 +230,7 @@ void ACPP_M1A1_Pawn::ParticleSet()
 	for(int i =0;i<WheelsEffect.Num();i++)
 	{
 		FString name = FString::Printf(TEXT("Wheel%d"),i);
-		WheelsEffect[i]->AttachToComponent(TankMesh,FAttachmentTransformRules::KeepRelativeTransform,FName(name));
+		WheelsEffect[i]->SetupAttachment(TankMesh,FName(name));
 		WheelsEffect[i]->Template = WheelParticle.Object;
 		WheelsEffect[i]->bAutoActivate = false;
 		WheelsEffect[i]->bAutoDestroy = false;

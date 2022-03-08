@@ -64,6 +64,7 @@ void ACPP_Projectile::BeginPlay()
 void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {//상속 받은 다음 충돌시 결과를 다르게 보내는 것으로 여러 탄종을 구현할려고 함
+	//OtherActor->TakeDamage(10,)
 	Destroy();
 }
 

@@ -87,7 +87,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 	//get&set
 	//기존의 getmovementcomp 함수를 현재가지고 있는 함수로 교체하는 과정
 	FORCEINLINE virtual UPawnMovementComponent* GetMovementComponent() const override;
@@ -131,6 +133,9 @@ private:
 	void TurretMoveLoop();
 	UFUNCTION()
 	void TurretMoveEnd();
+	//Damage
+
+	
 private:
 	//sight
 	float CamRange = 800;
@@ -165,5 +170,8 @@ private:
 	class USoundAttenuation* EngineSoundAttenuation;
 	class USoundAttenuation* TurretSoundAttenuation;
 
+	//Damage
+	float MAX_HP = 100;
+	float HP = MAX_HP;
 	
 };
