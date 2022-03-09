@@ -76,6 +76,7 @@ void UCPP_TankPawnMovementComponent::Movement(float DeltaTime)
 
 void UCPP_TankPawnMovementComponent::OnMove(float value)
 {
+	TankClimbingAngle = Owner->GetActorRotation().Pitch;
 	FVector dir = Owner->GetActorForwardVector();
 
 	if (value > 0)
@@ -89,7 +90,8 @@ void UCPP_TankPawnMovementComponent::OnMove(float value)
 			RPM = FMath::Clamp<float>(RPM, MinRPM, MaxRPM);
 			IsMoveForward = true;
 		}
-		VirtualForwardVal=FMath::Clamp(VirtualForwardVal+0.01f,0.0f,1.0f);
+		if(!FMath::IsNearlyEqual(VirtualForwardVal,1))
+			VirtualForwardVal=FMath::Clamp(VirtualForwardVal+0.01f,0.0f,1.0f);
 	}
 	else if (FMath::IsNearlyZero(value))
 	{
@@ -99,11 +101,11 @@ void UCPP_TankPawnMovementComponent::OnMove(float value)
 
 		if(VirtualForwardVal>0)
 		{
-			VirtualForwardVal=FMath::Clamp(VirtualForwardVal-0.01f,0.0f,1.0f);
+			VirtualForwardVal=FMath::Clamp(VirtualForwardVal-VirtualFriction,0.0f,1.0f);
 		}
 		else if(VirtualForwardVal<0)
 		{
-			VirtualForwardVal=FMath::Clamp(VirtualForwardVal+0.01f,-1.0f,0.0f);
+			VirtualForwardVal=FMath::Clamp(VirtualForwardVal+VirtualFriction,-1.0f,0.0f);
 		}
 	}
 	else
@@ -120,11 +122,28 @@ void UCPP_TankPawnMovementComponent::OnMove(float value)
 			RPM = FMath::Clamp<float>(RPM, MinRPM, MaxRPM);
 			IsMoveForward = false;
 		}
-		VirtualForwardVal=FMath::Clamp(VirtualForwardVal-0.01f,-1.0f,0.0f);
+		if(!FMath::IsNearlyEqual(VirtualForwardVal,-1))
+			VirtualForwardVal=FMath::Clamp(VirtualForwardVal-0.01f,-1.0f,0.0f);
 	}
-	CurrentVelocity=(dir*Speed*0.036f).Size();
-	SetWheelSpeed(CurrentVelocity*VirtualForwardVal);
-	NextLocation+=(dir*VirtualForwardVal);
+
+	//등판각에 따른 속도 조절
+	float TankClimbingAnglePercentage = 0.0f;
+	if(TankClimbingAngle>0)
+	{//올라가는 상황
+		TankClimbingAnglePercentage=TankClimbingAngle/60;
+	}
+	else if(TankClimbingAngle<0)
+	{//내려가는 상황
+		TankClimbingAnglePercentage=TankClimbingAngle/60;
+	}
+	else
+	{
+		TankClimbingAnglePercentage=0;
+	}
+	SetWheelSpeed(CurrentVelocity*(VirtualForwardVal-TankClimbingAnglePercentage));
+	NextLocation+=(dir*(VirtualForwardVal-TankClimbingAnglePercentage));
+	CurrentVelocity=(NextLocation*Speed*0.036f).Size();
+	UE_LOG(LogTemp,Display,L"%.2f",CurrentVelocity);
 }
 
 void UCPP_TankPawnMovementComponent::OnTurn(float value)
