@@ -140,9 +140,9 @@ void UCPP_TankPawnMovementComponent::OnMove(float value)
 	{
 		TankClimbingAnglePercentage=0;
 	}
-	SetWheelSpeed(CurrentVelocity*(VirtualForwardVal-TankClimbingAnglePercentage));
 	NextLocation+=(dir*(VirtualForwardVal-TankClimbingAnglePercentage));
 	CurrentVelocity=(NextLocation*Speed*0.036f).Size();
+	SetWheelSpeed(CurrentVelocity*VirtualForwardVal);
 	UE_LOG(LogTemp,Display,L"%.2f",CurrentVelocity);
 }
 
