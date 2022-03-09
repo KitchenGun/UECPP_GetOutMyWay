@@ -1,7 +1,6 @@
 #include "Tank/Component/CPP_TrackMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/ActorComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -78,15 +77,6 @@ void UCPP_TrackMovementComponent::Trace(int32 Index, float& OutDistance)
 	float length = (hitResult.ImpactPoint - hitResult.TraceEnd).Size();
 	//거리 반환
 	OutDistance = length-Offset;
-	//if(BoneName == "lf_wheel_02_track_jnt")
-	
-	//DegAtan의 경우 각도를 받아서 길이를 반환한다
-	//DegAtan2의 경우 b/a를 각각 반환해서 길이를 반환한다
-	//float roll = UKismetMathLibrary::DegAtan2(hitResult.ImpactNormal.Y, hitResult.ImpactNormal.Z);
-	//float pitch = UKismetMathLibrary::DegAtan2(hitResult.ImpactNormal.X, hitResult.ImpactNormal.Z);
-
-	//OutRotation = FRotator(pitch, 0, roll);
-
 }
 
 void UCPP_TrackMovementComponent::SetTraceBoneName(FName& TraceStartBone, FName& TraceWheelBone, int32 Index)

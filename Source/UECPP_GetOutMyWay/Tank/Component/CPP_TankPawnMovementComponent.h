@@ -73,6 +73,8 @@ private:
 	FRotator NextRotation = FRotator::ZeroRotator;
 	FVector PrevPos = FVector::ZeroVector;
 	float SpeedTimer = 0;
+	float VirtualForwardVal=0;
+	
 	//TrackSpeed
 	float TrackSpeed = 0;
 

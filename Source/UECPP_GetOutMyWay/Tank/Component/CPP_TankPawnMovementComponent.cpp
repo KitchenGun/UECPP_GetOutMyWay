@@ -89,11 +89,22 @@ void UCPP_TankPawnMovementComponent::OnMove(float value)
 			RPM = FMath::Clamp<float>(RPM, MinRPM, MaxRPM);
 			IsMoveForward = true;
 		}
+		VirtualForwardVal=FMath::Clamp(VirtualForwardVal+0.01f,0.0f,1.0f);
 	}
 	else if (FMath::IsNearlyZero(value))
 	{
 		IsAccelerating = false;
 		IsMoveForward = true;
+
+
+		if(VirtualForwardVal>0)
+		{
+			VirtualForwardVal=FMath::Clamp(VirtualForwardVal-0.01f,0.0f,1.0f);
+		}
+		else if(VirtualForwardVal<0)
+		{
+			VirtualForwardVal=FMath::Clamp(VirtualForwardVal+0.01f,-1.0f,0.0f);
+		}
 	}
 	else
 	{
@@ -109,11 +120,11 @@ void UCPP_TankPawnMovementComponent::OnMove(float value)
 			RPM = FMath::Clamp<float>(RPM, MinRPM, MaxRPM);
 			IsMoveForward = false;
 		}
+		VirtualForwardVal=FMath::Clamp(VirtualForwardVal-0.01f,-1.0f,0.0f);
 	}
 	CurrentVelocity=(dir*Speed*0.036f).Size();
-	
-	SetWheelSpeed(CurrentVelocity*value);
-	NextLocation+=(dir*value);
+	SetWheelSpeed(CurrentVelocity*VirtualForwardVal);
+	NextLocation+=(dir*VirtualForwardVal);
 }
 
 void UCPP_TankPawnMovementComponent::OnTurn(float value)

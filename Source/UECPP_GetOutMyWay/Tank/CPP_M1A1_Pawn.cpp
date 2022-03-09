@@ -455,20 +455,21 @@ void ACPP_M1A1_Pawn::OnWheelParticle()
 
 void ACPP_M1A1_Pawn::OnFireParticle()
 {
+	//particle 사용
 	MuzzleFlashEffect->Activate(true);
 	ShockWaveEffect->Activate(true);
 	GunSystemSoundPlay();
 	FVector Start = MuzzleFlashEffect->GetComponentLocation();
 	FVector End = MuzzleFlashEffect->GetComponentLocation();
 	TArray<AActor*> ignore;
-	//ignore.Add(this);
 	TArray<FHitResult> HitResults;
 	TArray<AActor*> ImpactArray;
-	float blastRange = 500;
-	float ShockWaveForce=4e+3;
+	float blastRange = 1000;
+	float ShockWaveForce=2e+3;
+	//포 발사에 따른 충격파 구현
 	const bool Hit =
 		UKismetSystemLibrary::SphereTraceMulti(GetWorld(),Start,End,blastRange,
-			ETraceTypeQuery::TraceTypeQuery8,false,ignore,EDrawDebugTrace::ForDuration,HitResults,true);
+			ETraceTypeQuery::TraceTypeQuery8,false,ignore,EDrawDebugTrace::None,HitResults,true);
 	if(Hit)
 	{
 		int32 index;
