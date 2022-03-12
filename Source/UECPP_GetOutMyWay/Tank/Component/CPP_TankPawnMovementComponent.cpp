@@ -143,7 +143,6 @@ void UCPP_TankPawnMovementComponent::OnMove(float value)
 	NextLocation+=(dir*(VirtualForwardVal-TankClimbingAnglePercentage));
 	CurrentVelocity=(NextLocation*Speed*0.036f).Size();
 	SetWheelSpeed(CurrentVelocity*VirtualForwardVal);
-	UE_LOG(LogTemp,Display,L"%.2f",CurrentVelocity);
 }
 
 void UCPP_TankPawnMovementComponent::OnTurn(float value)
@@ -192,9 +191,6 @@ void UCPP_TankPawnMovementComponent::EngineControl()
 		if (MaxRPM >= RPM)
 		{
 			RPM += (RPMDisplacement * GetWorld()->DeltaTimeSeconds);
-			//UE_LOG(LogTemp, Display, L"%d gear", EngineGear);
-			//UE_LOG(LogTemp, Display, L"%.2f MaxRPM", MaxRPM);
-			//UE_LOG(LogTemp, Display, L"%.2f RPM", RPM);
 		}
 		else
 		{
@@ -266,10 +262,11 @@ void UCPP_TankPawnMovementComponent::RPMControl()
 void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
 {
 	SightRotator = Owner->GetController()->GetControlRotation().Quaternion().Rotator();
-	TurretRotator = TankMesh->GetBoneQuaternion(L"turret_jnt").Rotator();
 	
 	if (!FMath::IsNearlyEqual(SightRotator.Yaw, TurretRotator.Yaw,0.1f))
 	{
+		TurretRotator = TankMesh->GetBoneQuaternion(L"turret_jnt").Rotator();
+
 		if(IsTurretAngleMatch)
 		{
 			if(TurretMoveStartFunc.IsBound())
@@ -293,7 +290,9 @@ void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
 		}
 		IsTurretAngleMatch = true;
 	}
-	TurretMove(DeltaTime);
+	
+	if(!IsTurretAngleMatch)
+		TurretMove(DeltaTime);
 }
 
 void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
