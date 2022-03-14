@@ -52,7 +52,6 @@ void UCPP_TankPawnMovementComponent::SetWheelSpeed(float WheelSpeed)
 
 void UCPP_TankPawnMovementComponent::Movement(float DeltaTime)
 {
-	
 	if (Owner != nullptr && !NextLocation.IsNearlyZero() && !isBreak)
 	{
 		NextLocation = GetActorLocation() + (NextLocation * DeltaTime * Speed);
@@ -79,6 +78,11 @@ void UCPP_TankPawnMovementComponent::OnMove(float value)
 	TankClimbingAngle = Owner->GetActorRotation().Pitch;
 	FVector dir = Owner->GetActorForwardVector();
 
+	if(isBreak)//엔진 브레이크 밟으면 속도를 0으로 만듬
+	{
+		value =0;
+	}
+	
 	if (value > 0)
 	{
 		IsAccelerating = true;
@@ -142,6 +146,7 @@ void UCPP_TankPawnMovementComponent::OnMove(float value)
 	}
 	NextLocation+=(dir*(VirtualForwardVal-TankClimbingAnglePercentage));
 	CurrentVelocity=(NextLocation*Speed*0.036f).Size();
+	//애니메이션에 전달
 	SetWheelSpeed(CurrentVelocity*VirtualForwardVal);
 }
 
