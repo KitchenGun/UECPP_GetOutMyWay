@@ -52,7 +52,7 @@ void UCPP_TankPawnMovementComponent::SetWheelSpeed(float WheelSpeed)
 
 void UCPP_TankPawnMovementComponent::Movement(float DeltaTime)
 {
-	if (Owner != nullptr && !NextLocation.IsNearlyZero() && !isBreak)
+	if (Owner != nullptr && !NextLocation.IsNearlyZero())
 	{
 		NextLocation = GetActorLocation() + (NextLocation * DeltaTime * Speed);
 		Owner->SetActorRelativeLocation(NextLocation);
@@ -78,12 +78,7 @@ void UCPP_TankPawnMovementComponent::OnMove(float value)
 	TankClimbingAngle = Owner->GetActorRotation().Pitch;
 	FVector dir = Owner->GetActorForwardVector();
 
-	if(isBreak)//엔진 브레이크 밟으면 속도를 0으로 만듬
-	{
-		value =0;
-	}
-	
-	if (value > 0)
+	if (value > 0&&!isBreak)
 	{
 		IsAccelerating = true;
 		MaxEngineGear = 4;
@@ -97,11 +92,10 @@ void UCPP_TankPawnMovementComponent::OnMove(float value)
 		if(!FMath::IsNearlyEqual(VirtualForwardVal,1))
 			VirtualForwardVal=FMath::Clamp(VirtualForwardVal+0.01f,0.0f,1.0f);
 	}
-	else if (FMath::IsNearlyZero(value))
+	else if (FMath::IsNearlyZero(value)||isBreak)
 	{
 		IsAccelerating = false;
 		IsMoveForward = true;
-
 
 		if(VirtualForwardVal>0)
 		{
@@ -112,12 +106,10 @@ void UCPP_TankPawnMovementComponent::OnMove(float value)
 			VirtualForwardVal=FMath::Clamp(VirtualForwardVal+VirtualFriction,-1.0f,0.0f);
 		}
 	}
-	else
+	else if(!isBreak)
 	{
 		IsAccelerating = true;
 		MaxEngineGear = 2;
-		//움직임에따라서 기어 맞추기
-		//EngineGear = FMath::Clamp<int>(EngineGear, 0, MaxEngineGear);
 		//기어에 맞게 RPM 조절
 		if (IsMoveForward)
 		{
@@ -464,11 +456,13 @@ void UCPP_TankPawnMovementComponent::GunMove(float DeltaTime)
 void UCPP_TankPawnMovementComponent::OnEngineBreak()
 {
 	isBreak=true;
+	VirtualFriction = 0.03f;
 }
 
 void UCPP_TankPawnMovementComponent::OffEngineBreak()
 {
 	isBreak = false;
+	VirtualFriction = 0.01f;
 }
 
 bool UCPP_TankPawnMovementComponent::GetIsRight(FVector TargetVec, FVector ForwardVec)
