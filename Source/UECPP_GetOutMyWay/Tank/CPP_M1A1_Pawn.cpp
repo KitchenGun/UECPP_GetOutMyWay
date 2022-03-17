@@ -244,9 +244,9 @@ void ACPP_M1A1_Pawn::SoundSet()
 	IdleAudio = CreateDefaultSubobject<UAudioComponent>(L"IdleAudio");
 	IdleAudio->SetupAttachment(TankMesh);
 	GunSystemAudio = CreateDefaultSubobject<UAudioComponent>(L"GunSystemAudio");
-	GunSystemAudio->SetupAttachment(TankMesh);
+	GunSystemAudio->SetupAttachment(GunnerCam);
 	TurretSystemAudio = CreateDefaultSubobject<UAudioComponent>(L"TurretSystemAudio");
-	TurretSystemAudio->SetupAttachment(TankMesh);
+	TurretSystemAudio->SetupAttachment(GunnerCam);
 	
 	ConstructorHelpers::FObjectFinder<USoundAttenuation> EngineAttenuation
 	(L"SoundAttenuation'/Game/BP/Sound/Attenuation/EngineSoundAttenuation.EngineSoundAttenuation'");

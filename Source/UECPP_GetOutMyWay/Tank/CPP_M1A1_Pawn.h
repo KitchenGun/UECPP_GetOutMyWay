@@ -77,6 +77,8 @@ protected:
 	class UCPP_TankPawnMovementComponent* TankMovement;
 
 	class UCPP_M1A1MainGunSystemComponent* GunSystem;
+
+	class UCPP_ParticleControlComponent* ParticleSystem;
 public:
 	ACPP_M1A1_Pawn();
 
