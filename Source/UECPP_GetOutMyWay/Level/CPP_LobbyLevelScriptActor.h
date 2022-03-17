@@ -11,7 +11,7 @@ class UECPP_GETOUTMYWAY_API ACPP_LobbyLevelScriptActor : public ALevelScriptActo
 public:
 	ACPP_LobbyLevelScriptActor();
 protected:
-	virtual auto BeginPlay() -> void override;
+	virtual void BeginPlay() override;
 private:
 	TSubclassOf<class UCPP_UserWidget_Lobby> BP_LobbyWidget;
 };

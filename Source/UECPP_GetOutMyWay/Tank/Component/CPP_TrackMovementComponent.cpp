@@ -62,7 +62,7 @@ void UCPP_TrackMovementComponent::Trace(int32 Index, float& OutDistance)
 
 	FHitResult hitResult;
 	//linetrace 생성
-	UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery3, true,
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery2, true,
 		ignoreActors, EDrawDebugTrace::ForOneFrame, hitResult, true, FLinearColor::Green, FLinearColor::Red);
 
 	//초기화

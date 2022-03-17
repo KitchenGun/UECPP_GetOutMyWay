@@ -15,6 +15,8 @@ protected:
 
 private:
 	UFUNCTION()
+	void ServerBrowserClicked();
+	UFUNCTION()
 	void ShootingRangeButtonClicked();
 	UFUNCTION()
 	void ExitButtonClicked();	
@@ -23,5 +25,6 @@ private:
 	class UButton* Button_ShootingRange;//나중에 멀티 들어가면 바꿔야함
 	UPROPERTY(meta=(BindWidget))
 	class UButton* Button_Exit;
-
+	UPROPERTY(meta=(BindWidget))
+	class UButton* Button_ServerBrowser;
 };
