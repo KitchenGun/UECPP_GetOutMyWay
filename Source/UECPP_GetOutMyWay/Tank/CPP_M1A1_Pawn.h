@@ -143,7 +143,7 @@ private:
 	float CamRange = 800;
 	float BasicCamTurnSpeed = 100;
 	float PitchLimitMax = 20;
-	float PitchLimitMin = 350;
+	float PitchLimitMin = -10;
 	ECameraType CamType = ECameraType::THIRD;
 	
 	//APlayerController

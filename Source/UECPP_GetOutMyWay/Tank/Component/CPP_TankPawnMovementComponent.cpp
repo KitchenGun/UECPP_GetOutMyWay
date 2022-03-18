@@ -456,7 +456,7 @@ void UCPP_TankPawnMovementComponent::GunMove(float DeltaTime)
 void UCPP_TankPawnMovementComponent::OnEngineBreak()
 {
 	isBreak=true;
-	VirtualFriction = 0.03f;
+	VirtualFriction = 0.02f;
 }
 
 void UCPP_TankPawnMovementComponent::OffEngineBreak()

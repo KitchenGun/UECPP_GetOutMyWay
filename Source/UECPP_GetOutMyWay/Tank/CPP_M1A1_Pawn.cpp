@@ -343,8 +343,23 @@ void ACPP_M1A1_Pawn::OnHorizontalLook(float value)
 
 void ACPP_M1A1_Pawn::CamPitchLimitSmooth()
 {
-	float pitch = Controller->GetControlRotation().Pitch;
-	//max를 수정해야함
+	float pitch = Controller->GetControlRotation().Quaternion().Rotator().Pitch;
+	float minAngle = PitchLimitMin;
+	float maxAngle = PitchLimitMax;
+	//탱크의 pitch를 구해서 등판각을 받음
+	//if(!FMath::IsNearlyZero(TankMesh->GetComponentRotation().Pitch,1.0f))
+	{
+		float displacementAngle = FRotator(Turret->GetComponentRotation()).Pitch;
+		minAngle = PitchLimitMin+displacementAngle;
+		maxAngle = PitchLimitMax+displacementAngle;
+	}
+	pitch = FMath::Clamp(pitch, minAngle, maxAngle);
+	
+	FRotator temp = FRotator(pitch, Controller->GetControlRotation().Quaternion().Rotator().Yaw, Controller->GetControlRotation().Quaternion().Rotator().Roll);
+	Controller->SetControlRotation(temp);
+	
+	/*
+	////max를 수정해야함
 	if (pitch < PitchLimitMin&&pitch>180)
 	{//범위를 벗어난 상태
 		pitch = FMath::Clamp(pitch, PitchLimitMin, 360.0f);
@@ -357,7 +372,6 @@ void ACPP_M1A1_Pawn::CamPitchLimitSmooth()
 		if (pitch < PitchLimitMax)
 		{//범위를 벗어난 상태
 			pitch = FMath::ClampAngle(pitch, PitchLimitMin, PitchLimitMax);
-
 			//범위에 맞는 값을 넣어준다
 			FRotator temp = FRotator(pitch, GetControlRotation().Yaw, GetControlRotation().Roll);
 			Controller->SetControlRotation(temp);
@@ -368,12 +382,12 @@ void ACPP_M1A1_Pawn::CamPitchLimitSmooth()
 		if (pitch < 180)
 		{//범위를 벗어난 상태
 			pitch = FMath::ClampAngle(pitch, 0, PitchLimitMax);
-
 			//범위에 맞는 값을 넣어준다
 			FRotator temp = FRotator(pitch, GetControlRotation().Yaw, GetControlRotation().Roll);
 			Controller->SetControlRotation(temp);
 		}
 	}
+	*/
 }
 
 void ACPP_M1A1_Pawn::CamChange()
