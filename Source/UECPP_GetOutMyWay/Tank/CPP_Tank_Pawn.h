@@ -93,7 +93,9 @@ public:
 	FORCEINLINE UParticleSystemComponent* GetMuzzleFlashEffect() {return MuzzleFlashEffect;}
 	FORCEINLINE UParticleSystemComponent* GetShockWaveEffect() {return ShockWaveEffect;}
 	FORCEINLINE TArray<class UParticleSystemComponent*> GetWheelsEffect() {return WheelsEffect;}
-	
+
+	FORCEINLINE float GetGunAngleOffset() {return displacementAngle;}
+
 	//Delegate
 	FFire FireFunc;
 protected:
@@ -138,6 +140,7 @@ protected:
 	float BasicCamTurnSpeed = 100;
 	float PitchLimitMax = 20;
 	float PitchLimitMin = -10;
+	float displacementAngle =0.0f;
 	ECameraType CamType = ECameraType::THIRD;
 	
 	//APlayerController

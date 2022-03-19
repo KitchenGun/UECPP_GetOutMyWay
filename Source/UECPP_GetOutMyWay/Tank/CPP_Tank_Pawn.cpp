@@ -43,11 +43,15 @@ void ACPP_Tank_Pawn::CamPitchLimitSmooth()
 	float minAngle = PitchLimitMin;
 	float maxAngle = PitchLimitMax;
 	//탱크의 pitch를 구해서 등판각을 받음
-	if(!FMath::IsNearlyZero(Turret->GetComponentRotation().Pitch,1.0f))
+	if(!FMath::IsNearlyZero(Turret->GetComponentRotation().Pitch,0.1f))
 	{
-		float displacementAngle = FRotator(GunnerSpringArm->GetComponentRotation().Quaternion()).Pitch;
+		displacementAngle = FRotator(GunnerSpringArm->GetComponentRotation().Quaternion()).Pitch;
 		minAngle = PitchLimitMin+displacementAngle;
 		maxAngle = PitchLimitMax+displacementAngle;
+	}
+	else
+	{
+		displacementAngle =0;
 	}
 	pitch = FMath::Clamp(pitch, minAngle, maxAngle);
 	

@@ -63,7 +63,7 @@ private:
 	void GunMove(float DeltaTime);
 private:
 	class APawn* Owner;
-
+	
 	//mesh&ani
 	class USkeletalMeshComponent* TankMesh;
 	class UCPP_TankAnimInstance* TankAnimInst;
@@ -120,9 +120,8 @@ private:
 	bool IsSightUpZero=true;
 	float GunAngle=0.0f;
 	float GunAngleOffSet=0.0f;
+	
 	//Gun 객체 별로 수정해야할 데이터 변수
-	float GunMoveSpeed = 20.0f;
-	float GunMaxElevation = 20.0f;
-	float GunMinElevation = 10.0f;
+	float GunMoveSpeed = 50.0f;
 	
 };
