@@ -3,12 +3,12 @@
 
 #include "Camera/CameraComponent.h"
 #include "Projectile/CPP_Projectile.h"
-#include "Tank/CPP_M1A1_Pawn.h"
+#include "Tank/CPP_Tank_Pawn.h"
 
 void UCPP_M1A1MainGunSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	Owner=Cast<ACPP_M1A1_Pawn>(GetOwner());
+	Owner=Cast<ACPP_Tank_Pawn>(GetOwner());
 	if(IsValid(Owner))
 	{
 		Owner->FireFunc.BindUFunction(this,"MainGunFire");
