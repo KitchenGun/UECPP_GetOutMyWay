@@ -22,8 +22,6 @@ class UECPP_GETOUTMYWAY_API ACPP_Tank_Pawn : public APawn
 
 public:
 	ACPP_Tank_Pawn();
-
-
 protected:
 	//Root
 	UPROPERTY(EditDefaultsOnly)
@@ -82,10 +80,9 @@ protected:
 
 	class UCPP_TankPawnMovementComponent* TankMovement;
 
-	class UCPP_M1A1MainGunSystemComponent* GunSystem;
+	class UCPP_MainGunSystemComponent* GunSystem;
 
 	class UCPP_ParticleControlComponent* ParticleSystem;
-
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -93,6 +90,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	//get&set
+	FORCEINLINE UParticleSystemComponent* GetMuzzleFlashEffect() {return MuzzleFlashEffect;}
+	FORCEINLINE UParticleSystemComponent* GetShockWaveEffect() {return ShockWaveEffect;}
+	FORCEINLINE TArray<class UParticleSystemComponent*> GetWheelsEffect() {return WheelsEffect;}
+	
 	//Delegate
 	FFire FireFunc;
 protected:
@@ -122,13 +123,13 @@ protected:
 	void EngineSoundStop();
 	void GunSystemSoundPlay();
 	UFUNCTION()
-	void GunSystemSoundStop();
+	virtual void GunSystemSoundStop();
 	UFUNCTION()
-	void GunSystemSoundReloadDone();
+	virtual void GunSystemSoundReloadDone();
 	UFUNCTION()
-	void TurretMoveLoop();
+	virtual void TurretMoveLoop();
 	UFUNCTION()
-	void TurretMoveEnd();
+	virtual void TurretMoveEnd();
 	
 protected:
 	//////////////////////////////tank 파라미터 변수/////////////////////////////////////////

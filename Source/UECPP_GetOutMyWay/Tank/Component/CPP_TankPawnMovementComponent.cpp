@@ -400,7 +400,6 @@ void UCPP_TankPawnMovementComponent::GunMove(float DeltaTime)
 	UE_LOG(LogTemp,Display,L"%.2f",GunLocalRotationPitch);
 
 	
-
 	
 	/*//130 -> -10 150 ->0
 	if(TurretLocalRotationYaw>0)

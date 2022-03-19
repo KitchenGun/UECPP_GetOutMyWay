@@ -20,6 +20,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+
 private:
 	//Setup
 	void ParameterSet();
@@ -28,4 +30,6 @@ private:
 	void CameraSet();
 	void ParticleSet();
 	void SoundSet();
+
+	
 };

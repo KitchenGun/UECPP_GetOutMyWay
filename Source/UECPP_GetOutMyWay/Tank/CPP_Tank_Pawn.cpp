@@ -1,35 +1,30 @@
 #include "Tank/CPP_Tank_Pawn.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Particles/ParticleSystemComponent.h"
 //mesh
-#include "Components/SkeletalMeshComponent.h"
-#include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
-#include "Animation/AnimInstance.h"
 //camera
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 //sound
 #include "Components/AudioComponent.h"
 #include "Sound/SoundCue.h"
-#include "Sound/SoundAttenuation.h"
 //actorComp
 #include "Component/CPP_TrackMovementComponent.h"
 #include "Component/CPP_TankPawnMovementComponent.h"
 #include "Component/CPP_M1A1MainGunSystemComponent.h"
+#include "Component/CPP_ParticleControlComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 ACPP_Tank_Pawn::ACPP_Tank_Pawn()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
+	
 }
 
 void ACPP_Tank_Pawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void ACPP_Tank_Pawn::OnVerticalLook(float value)
@@ -115,22 +110,14 @@ void ACPP_Tank_Pawn::OnMainGunFire()
 
 void ACPP_Tank_Pawn::OnWheelParticle()
 {
-	if(TankMovement->GetIsMove())
+	if(ParticleSystem->OnWheelParticle(TankMovement->GetIsMove()))
 	{
 		EngineSoundPlay();
-		for(int i =0;i<WheelsEffect.Num();i++)
-		{
-			WheelsEffect[i]->SetActive(true);
-		}
-		IsMoveBefore = true;
+		IsMoveBefore =true;
 	}
-	else
+	else if(IsMoveBefore)
 	{
 		EngineSoundStop();
-		for(int i =0;i<WheelsEffect.Num();i++)
-		{
-			WheelsEffect[i]->SetActive(false);
-		}
 		IsMoveBefore = false;
 	}
 	
@@ -138,42 +125,8 @@ void ACPP_Tank_Pawn::OnWheelParticle()
 
 void ACPP_Tank_Pawn::OnFireParticle()
 {
-	//particle 사용
-	MuzzleFlashEffect->Activate(true);
-	ShockWaveEffect->Activate(true);
+	ParticleSystem->OnFireParticle();
 	GunSystemSoundPlay();
-	FVector Start = MuzzleFlashEffect->GetComponentLocation();
-	FVector End = MuzzleFlashEffect->GetComponentLocation();
-	TArray<AActor*> ignore;
-	TArray<FHitResult> HitResults;
-	TArray<AActor*> ImpactArray;
-	float blastRange = 1000;
-	float ShockWaveForce=2e+3;
-	//포 발사에 따른 충격파 구현
-	const bool Hit =
-		UKismetSystemLibrary::SphereTraceMulti(GetWorld(),Start,End,blastRange,
-			ETraceTypeQuery::TraceTypeQuery8,false,ignore,EDrawDebugTrace::None,HitResults,true);
-	if(Hit)
-	{
-		int32 index;
-		for(FHitResult temp:HitResults)
-		{
-			AActor* tempActor=Cast<AActor>(temp.Actor);
-			if(IsValid(tempActor))
-			{
-				ImpactArray.Find(tempActor,index);
-				if(index==INDEX_NONE)
-				{
-					ImpactArray.Add(tempActor);
-					UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(tempActor->GetRootComponent());
-					if(IsValid(MeshComponent)&&MeshComponent->BodyInstance.bSimulatePhysics)
-					{
-						MeshComponent->AddImpulse(FVector(MeshComponent->GetComponentLocation()-(Start-FVector(0,200,0)))*ShockWaveForce);
-					}
-				}
-			}
-		}
-	}
 }
 
 void ACPP_Tank_Pawn::IdleSoundPlay()
@@ -228,10 +181,10 @@ void ACPP_Tank_Pawn::GunSystemSoundPlay()
 
 void ACPP_Tank_Pawn::GunSystemSoundStop()
 {
-	if(!GunSystem->GetIsMainGunCanFire())
+	if (!GunSystem->GetIsMainGunCanFire())
 	{
 		GunSystemAudio->AttenuationSettings = TurretSoundAttenuation;
-		GunSystemAudio->Sound = MainGunReloadDoneSound[UKismetMathLibrary::RandomIntegerInRange(0,2)];
+		GunSystemAudio->Sound = MainGunReloadDoneSound[UKismetMathLibrary::RandomIntegerInRange(0, 2)];
 		GunSystemAudio->Play();
 	}
 }
@@ -251,7 +204,7 @@ void ACPP_Tank_Pawn::TurretMoveLoop()
 
 void ACPP_Tank_Pawn::TurretMoveEnd()
 {
-	if(TurretSystemAudio->Sound==TurretLoopSound)
+	if (TurretSystemAudio->Sound == TurretLoopSound)
 	{
 		TurretSystemAudio->Sound = TurretEndSound;
 		TurretSystemAudio->Play();

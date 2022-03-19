@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Tank/CPP_Tank_Pawn.h"
 #include "CPP_ParticleControlComponent.generated.h"
 
 
@@ -10,14 +11,18 @@ class UECPP_GETOUTMYWAY_API UCPP_ParticleControlComponent : public UActorCompone
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	UCPP_ParticleControlComponent();
-
+	
+	bool OnWheelParticle(bool IsMove);
+	void OnFireParticle();
 protected:
 	virtual void BeginPlay() override;
-
-public:	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-		
+	
+private:
+	class ACPP_Tank_Pawn* OwnerTank;
+	//Particle
+	class UParticleSystemComponent* MuzzleFlashEffect;
+	class UParticleSystemComponent* ShockWaveEffect;
+	TArray<class UParticleSystemComponent*> WheelsEffect;
 };

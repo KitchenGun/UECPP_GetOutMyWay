@@ -17,11 +17,12 @@
 #include "Component/CPP_TrackMovementComponent.h"
 #include "Component/CPP_TankPawnMovementComponent.h"
 #include "Component/CPP_M1A1MainGunSystemComponent.h"
+#include "Component/CPP_ParticleControlComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
 {
-	PrimaryActorTick.bCanEverTick = true;
 	//parameter
 	ParameterSet();
 	//mesh
@@ -38,23 +39,27 @@ ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
 	TrackMovement = CreateDefaultSubobject<UCPP_TrackMovementComponent>(L"TrackMovement");
 	TankMovement = CreateDefaultSubobject<UCPP_TankPawnMovementComponent>(L"TankPawnMovement");
 	GunSystem = CreateDefaultSubobject<UCPP_M1A1MainGunSystemComponent>(L"GunSystem");
+	ParticleSystem = CreateDefaultSubobject<UCPP_ParticleControlComponent>(L"ParticleController");
 }
 
 void ACPP_M1A1_Pawn::BeginPlay()
 {
 	Super::BeginPlay();
-	PC = UGameplayStatics::GetPlayerController(this,0);
+	
 	//바인딩
-	if(IsValid(GunSystem))
-	{
-		GunSystem->FireEffectFunc.BindUFunction(this,"OnFireParticle");
-		GunSystem->GunReloadDoneFunc.BindUFunction(this,"GunSystemSoundReloadDone");
-	}
 	if(IsValid(TankMovement))
 	{
 		TankMovement->TurretMoveStartFunc.BindUFunction(this,"TurretMoveLoop");
 		TankMovement->TurretMoveEndFunc.BindUFunction(this,"TurretMoveEnd");
 	}	
+	if(IsValid(GunSystem))
+	{
+		GunSystem->FireEffectFunc.BindUFunction(this,"OnFireParticle");
+		GunSystem->GunReloadDoneFunc.BindUFunction(this,"GunSystemSoundReloadDone");
+	}
+	
+	PC = UGameplayStatics::GetPlayerController(this,0);
+	
 	//카메라
 	Camera->SetActive(true);
 	GunnerCam->SetActive(false);
@@ -100,14 +105,14 @@ float ACPP_M1A1_Pawn::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 void ACPP_M1A1_Pawn::ParameterSet()
 {
 	//sight
-	float CamRange = 800;
-	float BasicCamTurnSpeed = 100;
-	float PitchLimitMax = 20;
-	float PitchLimitMin = -10;
-	ECameraType CamType = ECameraType::THIRD;
+	CamRange = 800;
+	BasicCamTurnSpeed = 100;
+	PitchLimitMax = 20;
+	PitchLimitMin = -10;
+	CamType = ECameraType::THIRD;
 	//Damage
-	float MAX_HP = 100;
-	float HP = MAX_HP;
+	MAX_HP = 100;
+	HP = MAX_HP;
 }
 
 void ACPP_M1A1_Pawn::RootSet()
@@ -339,6 +344,8 @@ void ACPP_M1A1_Pawn::SoundSet()
 	GunSystemAudio->VolumeMultiplier=0.5f;
 	TurretSystemAudio->VolumeMultiplier=0.3f;
 }
+
+
 
 
 
