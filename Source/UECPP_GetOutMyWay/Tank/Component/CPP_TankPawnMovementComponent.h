@@ -29,7 +29,6 @@ public:
 	void OnEngineBreak();
 	void OffEngineBreak();
 
-	bool GetIsRight(FVector TargetVec,FVector ForwardVec);
 	
 	//get&set
 	FORCEINLINE float GetTrackSpeed() { return TrackSpeed; }
@@ -38,15 +37,17 @@ public:
 	FORCEINLINE float GetGunAngle() {return GunAngle;}
 	FORCEINLINE float GetGunAngleOffset() { return GunAngleOffSet; }
 	FORCEINLINE bool GetIsMove() {return IsAccelerating||IsTurning;}
-	FORCEINLINE void FixErrorRotator(float &val)
+	FORCEINLINE void FixRotatorDirSize()
 	{
-		if(val<-180)
-		{
-			val=180-(val+180);
+		if(SightRotator.Yaw>TurretRotator.Yaw)
+		{//포탑기준 오른쪽보는중
+			LeftAngle = TurretRotator.Yaw+(360.0f-SightRotator.Yaw);
+			RightAngle = SightRotator.Yaw - TurretRotator.Yaw;
 		}
-		else if(val>180)
-		{
-			val=-180+(val-180);
+		else
+		{//포탑기준 왼쪽보는중
+			LeftAngle = TurretRotator.Yaw - SightRotator.Yaw;
+			RightAngle = SightRotator.Yaw+(360.0f-TurretRotator.Yaw);
 		}
 	}
 
@@ -110,6 +111,8 @@ private:
 	FVector TurretDir = FVector::ZeroVector;
 	float TurretAngle = 0.0f;
 	float TurretAngleOffSet=0.0f;
+	float LeftAngle=0;
+	float RightAngle=0;
 	//Turret 객체 별로 수정해야할 데이터 변수
 	float TurretTurnSpeed = 100.0f;
 

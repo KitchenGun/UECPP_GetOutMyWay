@@ -259,12 +259,10 @@ void UCPP_TankPawnMovementComponent::RPMControl()
 
 void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
 {
-	SightRotator = Owner->GetController()->GetControlRotation().Quaternion().Rotator();
-	
-	if (!FMath::IsNearlyEqual(SightRotator.Yaw, TurretRotator.Yaw,0.1f))
+	SightRotator = Owner->GetController()->GetControlRotation().Quaternion().Rotator().GetEquivalentRotator();
+	TurretRotator = TankMesh->GetBoneQuaternion(L"turret_jnt").Rotator().GetEquivalentRotator();
+	if (!FMath::IsNearlyEqual(SightRotator.Yaw, TurretRotator.Yaw,1.0f))
 	{
-		TurretRotator = TankMesh->GetBoneQuaternion(L"turret_jnt").Rotator();
-
 		if(IsTurretAngleMatch)
 		{
 			if(TurretMoveStartFunc.IsBound())
@@ -273,11 +271,6 @@ void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
 		
 		//일치 하지 않을 경우
 		IsTurretAngleMatch = false;
-		TurretDir = TankMesh->GetBoneQuaternion(L"turret_jnt").Vector();
-		SightDir = SightRotator.Vector();
-		//차체기준으로 왼쪽 오른쪽 알려줌 오른쪽이면 0~180 왼쪽이면 -180~0
-		IsSightRight = GetIsRight(SightDir,FVector::ForwardVector);
-		IsTurretRight = GetIsRight(TurretDir,FVector::ForwardVector);
 	}
 	else
 	{
@@ -295,89 +288,35 @@ void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
 
 void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 {
-	if(!IsTurretAngleMatch)
+	if(IsTurretAngleMatch)
+		return;
+	
+	//탱크 포탑 기준  바라보는 곳과 몇도가 차이 나는지 판단용
+	FixRotatorDirSize();
+	if(LeftAngle<RightAngle)
 	{
-		//포탑 기준으로 시야 각도까지 오른 왼쪽 회전값 합
-		float LeftAngel=0;
-		float RightAngle=0;
-		FixErrorRotator(TurretAngle);
-		if(IsSightRight)
-		{//sight가 오른
-			if(IsTurretRight)
-			{//TurretRotator.Yaw +일 경우
-				if(TurretAngle<SightRotator.Yaw)
-				{//시야각이 더 큰 경우
-					TurretAngle=TurretAngle+(DeltaTime*TurretTurnSpeed);
-					if(TurretAngle>SightRotator.Yaw)
-					{//넘어갈 경우
-						TurretAngle = SightRotator.Yaw;
-					}
-				}
-				else
-				{//시야각이 더 작은 경우
-					TurretAngle=TurretAngle-(DeltaTime*TurretTurnSpeed);
-					if(TurretAngle<SightRotator.Yaw)
-					{//넘어갈 경우
-						TurretAngle = SightRotator.Yaw;
-					}
-				}
-			}
-			else
-			{//TurretRotator.Yaw -일 경우
-				LeftAngel = (180-abs(TurretAngle))+(180-SightRotator.Yaw);
-				RightAngle = abs(TurretAngle)+SightRotator.Yaw;
-				if(LeftAngel>RightAngle)
-				{//오른쪽으로 회전하는 경우
-					TurretAngle=TurretAngle+(DeltaTime*TurretTurnSpeed);
-				}
-				else
-				{//왼쪽으로 회전하는 경우
-					TurretAngle=TurretAngle-(DeltaTime*TurretTurnSpeed);
-				}
-				
-			}
-		}
-		else
-		{//sight가 왼쪽
-			if(IsTurretRight)
-			{//TurretRotator.Yaw +일 경우
-				LeftAngel = abs(SightRotator.Yaw)+TurretAngle;
-				RightAngle = (180-abs(SightRotator.Yaw))+(180-TurretAngle);
-				if(LeftAngel>RightAngle)
-				{//오른쪽으로 회전하는 경우
-					TurretAngle=TurretAngle+(DeltaTime*TurretTurnSpeed);
-				}
-				else
-				{//왼쪽으로 회전하는 경우
-					TurretAngle=TurretAngle-(DeltaTime*TurretTurnSpeed);
-					FixErrorRotator(TurretAngle);
-				}
-			}
-			else
-			{//TurretRotator.Yaw -일 경우
-				if(TurretAngle<SightRotator.Yaw)
-				{//시야각이 더 큰 경우
-					TurretAngle=TurretAngle+(DeltaTime*TurretTurnSpeed);
-					if(TurretAngle>SightRotator.Yaw)
-					{//넘어갈 경우
-						TurretAngle = SightRotator.Yaw;
-					}
-				}
-				else
-				{//시야각이 더 작은 경우
-					TurretAngle=TurretAngle-(DeltaTime*TurretTurnSpeed);
-					if(TurretAngle<SightRotator.Yaw)
-					{//넘어갈 경우
-						TurretAngle = SightRotator.Yaw;
-					}
-				}
-			}
+		TurretAngle= TurretAngle-(DeltaTime*TurretTurnSpeed);//크기가 작은쪽으로 회전
+		FixRotatorDirSize();
+		if(LeftAngle>RightAngle)//방향이 반전되면 보간
+		{
+			TurretAngle=FMath::FInterpTo(TurretAngle,SightRotator.Yaw-180.0f,DeltaTime,TurretTurnSpeed);
 		}
 	}
+	else if(LeftAngle>RightAngle)
+	{
+		TurretAngle=TurretAngle+(DeltaTime*TurretTurnSpeed);//크기가 작은쪽으로 회전
+		FixRotatorDirSize();//방향의 크기를 막는다
+		if(LeftAngle<RightAngle)//방향이 반전되면 보간
+		{
+			TurretAngle=FMath::FInterpTo(TurretAngle,SightRotator.Yaw-180.0f,DeltaTime,TurretTurnSpeed);
+		}
+	}
+	
 }
 
 void UCPP_TankPawnMovementComponent::UpdateGunState(float DeltaTime)
 {
+	SightRotator = Owner->GetController()->GetControlRotation().Quaternion().Rotator();
 	GunRotator = TankMesh->GetBoneQuaternion(L"gun_jnt").Rotator().Quaternion().Rotator();
 	if(!FMath::IsNearlyEqual(SightRotator.Pitch, GunRotator.Pitch,0.01f))
 	{
@@ -394,21 +333,22 @@ void UCPP_TankPawnMovementComponent::UpdateGunState(float DeltaTime)
 
 void UCPP_TankPawnMovementComponent::GunMove(float DeltaTime)
 {
-	if(IsGunAngleMatch)
+	if(IsGunAngleMatch)//매치하면 반환
 		return;
+	//시선을 등판각을 합쳐서 tankmesh의 gun rotator에 맞게 변경
 	float targetPitch = SightRotator.Pitch-Cast<ACPP_Tank_Pawn>(Owner)->GetGunAngleOffset();
-	
+	//gun본의 rotator를 받아와옴
 	float GunRotationPitch = TankMesh->GetBoneQuaternion(L"gun_jnt",EBoneSpaces::ComponentSpace).Rotator().Pitch;
 	if(GunRotationPitch>targetPitch)
-	{
+	{//목표로하는 각도가 gun의 각도보다 작은 경우
 		GunRotationPitch = FMath::Clamp(GunRotationPitch-(GunMoveSpeed*DeltaTime),targetPitch,GunRotationPitch);
 	}
 	else if(GunRotationPitch<targetPitch)
-	{
+	{//목표로하는 각도가 gun의 각도보다 큰 경우
 		GunRotationPitch =FMath::Clamp(GunRotationPitch+(GunMoveSpeed*DeltaTime),GunRotationPitch,targetPitch);
 	}
-	
-	GunAngle =FMath::Clamp(GunRotationPitch,-10.0f,20.0f);
+	//마지막으로 animinst에서 접근하는 변수에 넣어준다.
+	GunAngle = GunRotationPitch;
 }
 
 void UCPP_TankPawnMovementComponent::OnEngineBreak()
@@ -423,11 +363,4 @@ void UCPP_TankPawnMovementComponent::OffEngineBreak()
 	VirtualFriction = 0.01f;
 }
 
-bool UCPP_TankPawnMovementComponent::GetIsRight(FVector TargetVec, FVector ForwardVec)
-{
-	FVector CrossVec = FVector::CrossProduct(TargetVec, ForwardVec); //외적
-	if (FVector::DotProduct(CrossVec, FVector::UpVector) > 0) //내적
-		return false;
-	else
-		return true;
-}
+
