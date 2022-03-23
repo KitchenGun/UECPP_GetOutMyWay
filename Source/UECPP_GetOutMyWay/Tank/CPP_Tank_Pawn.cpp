@@ -225,6 +225,14 @@ void ACPP_Tank_Pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+float ACPP_Tank_Pawn::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	HP-=DamageAmount;
+	UE_LOG(LogTemp,Display,L"%.2f",HP);
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}
+
 
 
 

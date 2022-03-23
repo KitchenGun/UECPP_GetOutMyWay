@@ -93,15 +93,6 @@ void ACPP_M1A1_Pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Fire",IE_Pressed,this,&ACPP_M1A1_Pawn::OnMainGunFire);
 }
 
-float ACPP_M1A1_Pawn::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
-	AActor* DamageCauser)
-{
-	HP-=DamageAmount;
-	UE_LOG(LogTemp,Display,L"%.2f",HP);
-	
-	return 0.0f;
-}
-
 void ACPP_M1A1_Pawn::ParameterSet()
 {
 	//sight

@@ -3,6 +3,7 @@
 #include "GameFramework/Actor.h"
 #include "Animation/AnimInstance.h"
 #include "Math/Vector.h"
+#include "Tank/CPP_M1A1_Pawn.h"
 #include "Tank/CPP_Tank_Pawn.h"
 
 UCPP_TankPawnMovementComponent::UCPP_TankPawnMovementComponent()

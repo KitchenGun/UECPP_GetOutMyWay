@@ -28,4 +28,7 @@ private:
 	class UStaticMeshComponent* Effect;
 	
 	class UProjectileMovementComponent* ProjectileMovement;
+
+
+	FVector StartPos=FVector::ZeroVector;
 };

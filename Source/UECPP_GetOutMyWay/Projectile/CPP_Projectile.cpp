@@ -3,6 +3,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Tank/CPP_Tank_Pawn.h"
 
 ACPP_Projectile::ACPP_Projectile()
 {
@@ -57,6 +58,7 @@ void ACPP_Projectile::BeginPlay()
 	Super::BeginPlay();
 	Capsule->OnComponentHit.AddDynamic(this, &ACPP_Projectile::OnHit);
 	//capsule이 회전되어 있어서 이렇게 변경해서 사용함 -> -Capsule->GetUpVector()
+	StartPos = this->GetActorLocation();
 	ProjectileMovement->Velocity = -Capsule->GetUpVector()*ProjectileMovement->InitialSpeed;
 	InitialLifeSpan = 5.0f;
 }
@@ -64,7 +66,23 @@ void ACPP_Projectile::BeginPlay()
 void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {//상속 받은 다음 충돌시 결과를 다르게 보내는 것으로 여러 탄종을 구현할려고 함
-	//OtherActor->TakeDamage(10,)
+	if(Cast<ACPP_Tank_Pawn>(OtherActor))
+	{
+		//충돌 방향 벡터
+		FVector HitVec = Hit.Location-StartPos;
+		HitVec =HitVec.GetSafeNormal();
+		UE_LOG(LogTemp,Display,L"HitVec %s",*HitVec.ToString());
+		//충돌된 컴포넌트의 방향 벡터
+		FVector HitObjVec = (OtherComp->GetComponentLocation()-Hit.ImpactPoint).GetSafeNormal();
+		HitObjVec+=HitVec;
+		HitObjVec = HitObjVec.GetSafeNormal();
+		HitObjVec = FVector(abs(HitObjVec.X),abs(HitObjVec.Y),abs(HitObjVec.Z));
+		UE_LOG(LogTemp,Display,L"HitObjVec %s",*HitObjVec.ToString());
+		//두벡터의 세타를 구해야함
+		float angle =FMath::Acos(FVector::DotProduct(HitVec,HitObjVec));
+		UE_LOG(LogTemp,Display,L"angle %.2f",FMath::RadiansToDegrees(angle));
+		UE_LOG(LogTemp,Display,L"GetName %s",*OtherComp->GetName());
+	}
 	Destroy();
 }
 
