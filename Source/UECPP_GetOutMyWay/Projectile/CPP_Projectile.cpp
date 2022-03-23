@@ -71,15 +71,13 @@ void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 		//충돌 방향 벡터
 		FVector HitVec = Hit.Location-StartPos;
 		HitVec =HitVec.GetSafeNormal();
-		UE_LOG(LogTemp,Display,L"HitVec %s",*HitVec.ToString());
 		//충돌된 컴포넌트의 방향 벡터
-		FVector HitObjVec = (OtherComp->GetComponentLocation()-Hit.ImpactPoint).GetSafeNormal();
-		HitObjVec+=HitVec;
-		HitObjVec = HitObjVec.GetSafeNormal();
-		HitObjVec = FVector(abs(HitObjVec.X),abs(HitObjVec.Y),abs(HitObjVec.Z));
+		FVector HitObjVec = OtherComp->GetComponentRotation().Vector();
 		UE_LOG(LogTemp,Display,L"HitObjVec %s",*HitObjVec.ToString());
+		HitObjVec = HitObjVec.GetSafeNormal();
 		//두벡터의 세타를 구해야함
 		float angle =FMath::Acos(FVector::DotProduct(HitVec,HitObjVec));
+		UE_LOG(LogTemp,Display,L"HitVec %s",*HitVec.ToString());
 		UE_LOG(LogTemp,Display,L"angle %.2f",FMath::RadiansToDegrees(angle));
 		UE_LOG(LogTemp,Display,L"GetName %s",*OtherComp->GetName());
 	}
