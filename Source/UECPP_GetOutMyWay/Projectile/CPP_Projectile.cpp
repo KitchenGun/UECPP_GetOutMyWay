@@ -1,4 +1,6 @@
 #include "Projectile/CPP_Projectile.h"
+
+#include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystem.h"
@@ -63,24 +65,55 @@ void ACPP_Projectile::BeginPlay()
 	InitialLifeSpan = 5.0f;
 }
 
+float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitiveComponent* OtherComp,
+	const FHitResult& Hit)
+{
+	//충돌한 메쉬의 크기 반환
+	FVector compScale =Cast<UBoxComponent>(OtherComp)->GetScaledBoxExtent();
+	float x,y,z;
+	x = compScale.X;
+	y = compScale.Y;
+	z = compScale.Z;
+	//크기를 이용해서 매쉬의 중점을 지나 대각선 반으로 가르는 선의 각도를 구함
+	float h = sqrtf(y*y+z*z);
+	float a = sqrtf(h*h+x*x);
+	float FrontSideJudgeAngle = asinf(h/a);
+	FrontSideJudgeAngle = FMath::RadiansToDegrees(FrontSideJudgeAngle);
+	//충돌 방향 벡터
+	FVector HitVec = Hit.Location-StartPos;
+	HitVec =HitVec.GetSafeNormal();
+	//충돌된 컴포넌트의 방향 벡터
+	FVector HitObjVec = OtherComp->GetComponentRotation().Vector();
+	HitObjVec = HitObjVec.GetSafeNormal();
+
+	//두벡터의 세타를 구해야함
+	float angle =FMath::Acos(FVector::DotProduct(HitVec,HitObjVec));
+	angle = FMath::RadiansToDegrees(angle);
+	//충돌면이 정면인지 측면인지 확인
+	if(angle<FrontSideJudgeAngle
+		||angle>180-FrontSideJudgeAngle)
+	{
+		//정면이나 후면인 경우
+		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(0,90.0f,0)).Vector();
+		HitObjVec = HitObjVec.GetSafeNormal();
+		//재연산
+		angle =FMath::Acos(FVector::DotProduct(HitVec,HitObjVec));
+		angle = FMath::RadiansToDegrees(angle);
+	}
+
+	return angle;
+	
+}
+
 void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	FVector NormalImpulse, const FHitResult& Hit)
+                            FVector NormalImpulse, const FHitResult& Hit)
 {//상속 받은 다음 충돌시 결과를 다르게 보내는 것으로 여러 탄종을 구현할려고 함
 	if(Cast<ACPP_Tank_Pawn>(OtherActor))
 	{
-		//충돌 방향 벡터
-		FVector HitVec = Hit.Location-StartPos;
-		HitVec =HitVec.GetSafeNormal();
-		//충돌된 컴포넌트의 방향 벡터
-		FVector HitObjVec = OtherComp->GetComponentRotation().Vector();
-		UE_LOG(LogTemp,Display,L"HitObjVec %s",*HitObjVec.ToString());
-		HitObjVec = HitObjVec.GetSafeNormal();
-		//두벡터의 세타를 구해야함
-		float angle =FMath::Acos(FVector::DotProduct(HitVec,HitObjVec));
-		UE_LOG(LogTemp,Display,L"HitVec %s",*HitVec.ToString());
-		UE_LOG(LogTemp,Display,L"angle %.2f",FMath::RadiansToDegrees(angle));
-		UE_LOG(LogTemp,Display,L"GetName %s",*OtherComp->GetName());
+		float HitAngle = GetHitAngle(HitComponent,OtherComp,Hit);
+		UE_LOG(LogTemp,Display,L"%.2f",HitAngle);
 	}
+	
 	Destroy();
 }
 
