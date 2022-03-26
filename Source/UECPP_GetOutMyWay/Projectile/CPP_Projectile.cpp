@@ -77,7 +77,7 @@ float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitive
 	//크기를 이용해서 매쉬의 중점을 지나 대각선 반으로 가르는 선의 각도를 구함
 	float h = sqrtf(y*y+z*z);
 	float a = sqrtf(h*h+x*x);
-	float FrontSideJudgeAngle = asinf(h/a);
+	FrontSideJudgeAngle = asinf(h/a);
 	FrontSideJudgeAngle = FMath::RadiansToDegrees(FrontSideJudgeAngle);
 	//충돌 방향 벡터
 	FVector HitVec = Hit.Location-StartPos;
@@ -85,6 +85,10 @@ float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitive
 	//충돌된 컴포넌트의 방향 벡터
 	FVector HitObjVec = OtherComp->GetComponentRotation().Vector();
 	HitObjVec = HitObjVec.GetSafeNormal();
+	//충돌면 파악하기
+	bool isFrontOrBack = false;
+	
+	
 
 	//두벡터의 세타를 구해야함
 	float angle =FMath::Acos(FVector::DotProduct(HitVec,HitObjVec));
@@ -100,9 +104,7 @@ float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitive
 		angle =FMath::Acos(FVector::DotProduct(HitVec,HitObjVec));
 		angle = FMath::RadiansToDegrees(angle);
 	}
-
 	return angle;
-	
 }
 
 void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -111,7 +113,8 @@ void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 	if(Cast<ACPP_Tank_Pawn>(OtherActor))
 	{
 		float HitAngle = GetHitAngle(HitComponent,OtherComp,Hit);
-		UE_LOG(LogTemp,Display,L"%.2f",HitAngle);
+		UE_LOG(LogTemp,Display,L"HitAngle %.2f",HitAngle);
+		UE_LOG(LogTemp,Display,L"FrontSideJudgeAngle %.2f",FrontSideJudgeAngle);
 	}
 	
 	Destroy();
