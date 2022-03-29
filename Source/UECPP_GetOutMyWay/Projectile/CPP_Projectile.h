@@ -30,6 +30,5 @@ private:
 	
 	class UProjectileMovementComponent* ProjectileMovement;
 
-	float FrontSideJudgeAngle =0;
 	FVector StartPos=FVector::ZeroVector;
 };

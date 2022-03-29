@@ -1,8 +1,10 @@
 #include "Projectile/CPP_Projectile.h"
 
+#include "DrawDebugHelpers.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Tank/CPP_Tank_Pawn.h"
@@ -68,43 +70,27 @@ void ACPP_Projectile::BeginPlay()
 float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitiveComponent* OtherComp,
 	const FHitResult& Hit)
 {
-	//충돌한 메쉬의 크기 반환
+	
+	UE_LOG(LogTemp,Display,L"%s",*OtherComp->GetName());
+	//debug 용
+	DrawDebugSphere(GetWorld(),Hit.ImpactPoint,50,20,FColor::Yellow,true,1,0,2);
+	//맞은 부위 판별용
 	FVector compScale =Cast<UBoxComponent>(OtherComp)->GetScaledBoxExtent();
-	float x,y,z;
-	x = compScale.X;
-	y = compScale.Y;
-	z = compScale.Z;
-	//크기를 이용해서 매쉬의 중점을 지나 대각선 반으로 가르는 선의 각도를 구함
-	float h = sqrtf(y*y+z*z);
-	float a = sqrtf(h*h+x*x);
-	FrontSideJudgeAngle = asinf(h/a);
-	FrontSideJudgeAngle = FMath::RadiansToDegrees(FrontSideJudgeAngle);
-	//충돌 방향 벡터
-	FVector HitVec = Hit.Location-StartPos;
-	HitVec =HitVec.GetSafeNormal();
-	//충돌된 컴포넌트의 방향 벡터
-	FVector HitObjVec = OtherComp->GetComponentRotation().Vector();
-	HitObjVec = HitObjVec.GetSafeNormal();
-	//충돌면 파악하기
-	bool isFrontOrBack = false;
-	
-	
+	//InverseTransform
+	FVector HitPosInverseTransform =UKismetMathLibrary::InverseTransformLocation(OtherComp->GetComponentTransform(),Hit.ImpactPoint);
+	UE_LOG(LogTemp,Display,L"%s",*HitPosInverseTransform.ToString());
 
-	//두벡터의 세타를 구해야함
-	float angle =FMath::Acos(FVector::DotProduct(HitVec,HitObjVec));
-	angle = FMath::RadiansToDegrees(angle);
-	//충돌면이 정면인지 측면인지 확인
-	if(angle<FrontSideJudgeAngle
-		||angle>180-FrontSideJudgeAngle)
+	if(FMath::IsNearlyEqual(abs(HitPosInverseTransform.Y),abs(compScale.Y),0.1f))
 	{
-		//정면이나 후면인 경우
-		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(0,90.0f,0)).Vector();
-		HitObjVec = HitObjVec.GetSafeNormal();
-		//재연산
-		angle =FMath::Acos(FVector::DotProduct(HitVec,HitObjVec));
-		angle = FMath::RadiansToDegrees(angle);
+		UE_LOG(LogTemp,Display,L"side");
 	}
-	return angle;
+	else
+	{
+		
+	}
+	
+	
+	return 0;
 }
 
 void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -114,7 +100,6 @@ void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 	{
 		float HitAngle = GetHitAngle(HitComponent,OtherComp,Hit);
 		UE_LOG(LogTemp,Display,L"HitAngle %.2f",HitAngle);
-		UE_LOG(LogTemp,Display,L"FrontSideJudgeAngle %.2f",FrontSideJudgeAngle);
 	}
 	
 	Destroy();

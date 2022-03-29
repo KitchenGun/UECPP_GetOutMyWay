@@ -6,7 +6,7 @@ UCPP_MultiplayGameInstance::UCPP_MultiplayGameInstance()
 {
 }
 
-void UCPP_MultiplayGameInstance::Init()
-{
-	Super::Init();
-}
+//void UCPP_MultiplayGameInstance::Init()
+//{
+//	Super::Init();
+//}
