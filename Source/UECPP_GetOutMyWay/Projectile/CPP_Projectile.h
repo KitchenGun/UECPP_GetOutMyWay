@@ -3,6 +3,17 @@
 #include "GameFramework/Actor.h"
 #include "CPP_Projectile.generated.h"
 
+UENUM()
+enum EHitDir
+{
+	Front,
+	Side,
+	Back,
+	UpSide,
+	DownSide,
+	Max
+};
+
 UCLASS()
 class UECPP_GETOUTMYWAY_API ACPP_Projectile : public AActor
 {
@@ -27,6 +38,8 @@ private:
 	class UStaticMeshComponent* WarHead;
 	UPROPERTY(VisibleDefaultsOnly)
 	class UStaticMeshComponent* Effect;
+
+	EHitDir ProjectileHitDir = EHitDir::Max;
 	
 	class UProjectileMovementComponent* ProjectileMovement;
 

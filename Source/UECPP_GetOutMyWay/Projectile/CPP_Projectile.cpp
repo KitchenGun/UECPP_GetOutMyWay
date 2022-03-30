@@ -70,7 +70,7 @@ void ACPP_Projectile::BeginPlay()
 float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitiveComponent* OtherComp,
 	const FHitResult& Hit)
 {
-	
+	//이름
 	UE_LOG(LogTemp,Display,L"%s",*OtherComp->GetName());
 	//debug 용
 	DrawDebugSphere(GetWorld(),Hit.ImpactPoint,50,20,FColor::Yellow,true,1,0,2);
@@ -78,19 +78,57 @@ float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitive
 	FVector compScale =Cast<UBoxComponent>(OtherComp)->GetScaledBoxExtent();
 	//InverseTransform
 	FVector HitPosInverseTransform =UKismetMathLibrary::InverseTransformLocation(OtherComp->GetComponentTransform(),Hit.ImpactPoint);
-	UE_LOG(LogTemp,Display,L"%s",*HitPosInverseTransform.ToString());
 
+
+	//충돌된 컴포넌트의 방향 벡터
+	FVector HitObjVec = FVector::ZeroVector;
+	
+	//충돌 면 파악
 	if(FMath::IsNearlyEqual(abs(HitPosInverseTransform.Y),abs(compScale.Y),0.1f))
 	{
-		UE_LOG(LogTemp,Display,L"side");
+		UE_LOG(LogTemp,Display,L"Side");
+		ProjectileHitDir = EHitDir::Side;
+		HitObjVec = OtherComp->GetComponentRotation().Vector();
 	}
-	else
+	else if(FMath::IsNearlyEqual(HitPosInverseTransform.X,compScale.X))
 	{
-		
+		UE_LOG(LogTemp,Display,L"Front");
+		ProjectileHitDir = EHitDir::Front;
+		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(0,90.0f,0)).Vector();
 	}
+	else if(FMath::IsNearlyEqual(HitPosInverseTransform.X,-compScale.X))
+	{
+		UE_LOG(LogTemp,Display,L"Back");
+		ProjectileHitDir = EHitDir::Back;
+		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(0,180.0f,0)).Vector();
+	}
+	else if(FMath::IsNearlyEqual(HitPosInverseTransform.Z,compScale.Z))
+	{
+		UE_LOG(LogTemp,Display,L"UpSide");
+		ProjectileHitDir = EHitDir::UpSide;
+		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(90.0f,0,0)).Vector();
+	}
+	else 
+	{
+		UE_LOG(LogTemp,Display,L"Back");
+		ProjectileHitDir = EHitDir::Back;
+		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(-90.0f,0,0)).Vector();
+	}
+	//충돌된 컴포넌트의 방향벡터 정규화
+	HitObjVec = HitObjVec.GetSafeNormal();
+
+
+	//충돌 방향 벡터
+	FVector HitVec = Hit.Location-StartPos;
+	HitVec =HitVec.GetSafeNormal();
+
+
 	
-	
-	return 0;
+	//두벡터의 세타를 구해야함
+	float angle =FMath::Acos(FVector::DotProduct(HitVec,HitObjVec));
+	angle = FMath::RadiansToDegrees(angle);
+
+	return angle;
 }
 
 void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
