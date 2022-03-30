@@ -22,6 +22,13 @@ class UECPP_GETOUTMYWAY_API ACPP_Projectile : public AActor
 public:	
 	ACPP_Projectile();
 
+	FORCEINLINE	void SetEventInstigator(FString objName,AController* playerCtrl)
+	{
+		ObjName=objName;
+		PlayerCtrl = playerCtrl;
+	}
+	
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -38,10 +45,17 @@ private:
 	class UStaticMeshComponent* WarHead;
 	UPROPERTY(VisibleDefaultsOnly)
 	class UStaticMeshComponent* Effect;
-
+	//방향
 	EHitDir ProjectileHitDir = EHitDir::Max;
+	FVector StartPos=FVector::ZeroVector;
+	//발사정보
+	FString ObjName;
+	AController* PlayerCtrl = nullptr;
+
 	
 	class UProjectileMovementComponent* ProjectileMovement;
 
-	FVector StartPos=FVector::ZeroVector;
+
+	
+	
 };

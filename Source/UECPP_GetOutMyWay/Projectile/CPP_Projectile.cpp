@@ -4,6 +4,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -86,31 +87,26 @@ float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitive
 	//충돌 면 파악
 	if(FMath::IsNearlyEqual(abs(HitPosInverseTransform.Y),abs(compScale.Y),0.1f))
 	{
-		UE_LOG(LogTemp,Display,L"Side");
 		ProjectileHitDir = EHitDir::Side;
 		HitObjVec = OtherComp->GetComponentRotation().Vector();
 	}
 	else if(FMath::IsNearlyEqual(HitPosInverseTransform.X,compScale.X))
 	{
-		UE_LOG(LogTemp,Display,L"Front");
 		ProjectileHitDir = EHitDir::Front;
 		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(0,90.0f,0)).Vector();
 	}
 	else if(FMath::IsNearlyEqual(HitPosInverseTransform.X,-compScale.X))
 	{
-		UE_LOG(LogTemp,Display,L"Back");
 		ProjectileHitDir = EHitDir::Back;
 		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(0,180.0f,0)).Vector();
 	}
 	else if(FMath::IsNearlyEqual(HitPosInverseTransform.Z,compScale.Z))
 	{
-		UE_LOG(LogTemp,Display,L"UpSide");
 		ProjectileHitDir = EHitDir::UpSide;
 		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(90.0f,0,0)).Vector();
 	}
 	else 
 	{
-		UE_LOG(LogTemp,Display,L"Back");
 		ProjectileHitDir = EHitDir::Back;
 		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(-90.0f,0,0)).Vector();
 	}
@@ -122,8 +118,6 @@ float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitive
 	FVector HitVec = Hit.Location-StartPos;
 	HitVec =HitVec.GetSafeNormal();
 
-
-	
 	//두벡터의 세타를 구해야함
 	float angle =FMath::Acos(FVector::DotProduct(HitVec,HitObjVec));
 	angle = FMath::RadiansToDegrees(angle);
@@ -137,9 +131,21 @@ void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 	if(Cast<ACPP_Tank_Pawn>(OtherActor))
 	{
 		float HitAngle = GetHitAngle(HitComponent,OtherComp,Hit);
+		const UEnum* DirEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EHitDir"), true);
+
+		FString EnumToString = DirEnum->GetNameStringByValue((int64)ProjectileHitDir);
+		UE_LOG(LogTemp,Display,L"Dir : %s",*EnumToString)
 		UE_LOG(LogTemp,Display,L"HitAngle %.2f",HitAngle);
+
+		float damage = 20;
+		
+		UGameplayStatics::ApplyPointDamage(OtherActor,damage,Hit.Location,Hit,PlayerCtrl,this,nullptr);
+		Destroy();
 	}
-	
+	else
+	{
+		//지면 충돌 파티클 생성
+	}
 	Destroy();
 }
 
