@@ -48,6 +48,9 @@ private:
 	//방향
 	EHitDir ProjectileHitDir = EHitDir::Max;
 	FVector StartPos=FVector::ZeroVector;
+	//데미지
+	float Damage = 20.0f;
+	
 	//발사정보
 	FString ObjName;
 	AController* PlayerCtrl = nullptr;

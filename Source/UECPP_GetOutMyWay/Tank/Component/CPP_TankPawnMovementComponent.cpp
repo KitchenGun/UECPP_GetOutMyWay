@@ -261,7 +261,7 @@ void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
 {
 	SightRotator = Owner->GetController()->GetControlRotation().Quaternion().Rotator().GetEquivalentRotator();
 	TurretRotator = TankMesh->GetBoneQuaternion(L"turret_jnt").Rotator().GetEquivalentRotator();
-	if (static_cast<int>(SightRotator.Yaw-TurretRotator.Yaw)!=0)
+	if (!FMath::IsNearlyZero(SightRotator.Yaw-TurretRotator.Yaw,0.1f))
 	{
 		//포탑회전 관련 사운드 함수 호출
 		if(IsTurretAngleMatch)
@@ -283,7 +283,6 @@ void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
 		}
 		IsTurretAngleMatch = true;
 	}
-	
 	if(!IsTurretAngleMatch)
 		TurretMove(DeltaTime);
 }
@@ -292,28 +291,32 @@ void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 {
 	if(IsTurretAngleMatch)
 		return;
-
 	//탱크 포탑 기준  바라보는 곳과 몇도가 차이 나는지 판단용
 	FixRotatorDirSize();
+	//더 작은 각도 판별
 	if(LeftAngle<RightAngle)
 	{
-		TurretAngle= TurretAngle-(DeltaTime*TurretTurnSpeed);//크기가 작은쪽으로 회전
-		if(static_cast<int>(SightRotator.Yaw-TurretAngle)>=-1&&
-			static_cast<int>(SightRotator.Yaw-TurretAngle)<=1)//방향이 반전되면 보간
+		if(LeftAngle>DeltaTime*TurretTurnSpeed)
 		{
-			FMath::FInterpTo(TurretAngle,(SightRotator.Yaw-180.0f),DeltaTime,TurretTurnSpeed);
+			TurretAngle = TurretAngle-(DeltaTime*TurretTurnSpeed);//크기가 작은쪽으로 회전
+		}
+		else
+		{//회전 방향의 남은 각도와 사용자가 바라보는 각도와 보간
+			TurretAngle=FMath::FInterpTo(TurretAngle,SightRotator.Yaw-180.0f,DeltaTime,TurretTurnSpeed);
 		}
 	}
 	else if(LeftAngle>RightAngle)
 	{
-		TurretAngle=TurretAngle+(DeltaTime*TurretTurnSpeed);//크기가 작은쪽으로 회전
-		if(static_cast<int>(SightRotator.Yaw-TurretAngle)>=-1&&
-			static_cast<int>(SightRotator.Yaw-TurretAngle)<=1)//방향이 반전되면 보간
+		if(RightAngle>DeltaTime*TurretTurnSpeed)
 		{
-			TurretAngle=FMath::FInterpTo(TurretAngle,(SightRotator.Yaw-180.0f),DeltaTime,TurretTurnSpeed);
+			TurretAngle = TurretAngle+(DeltaTime*TurretTurnSpeed);//크기가 작은쪽으로 회전
+		}
+		else
+		{//회전 방향의 남은 각도와 사용자가 바라보는 각도와 보간
+			TurretAngle=FMath::FInterpTo(TurretAngle,SightRotator.Yaw-180.0f,DeltaTime,TurretTurnSpeed);
 		}
 	}
-	
+
 }
 
 void UCPP_TankPawnMovementComponent::UpdateGunState(float DeltaTime)

@@ -102,7 +102,7 @@ private:
 	float MaxRPM = 900;
 
 	//Turret
-	FRotator SightRotator = FRotator::ZeroRotator;
+	FRotator SightRotator =  FRotator::ZeroRotator;
 	FRotator TurretRotator = FRotator::ZeroRotator; //world로 연산하도록 해야함
 	bool IsTurretAngleMatch = true;
 	bool IsSightRight = false; //차체 기준으로 오른쪽인가 왼쪽인가

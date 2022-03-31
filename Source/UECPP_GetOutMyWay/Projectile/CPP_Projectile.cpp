@@ -6,7 +6,6 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Tank/CPP_Tank_Pawn.h"
 
@@ -136,10 +135,45 @@ void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 		FString EnumToString = DirEnum->GetNameStringByValue((int64)ProjectileHitDir);
 		UE_LOG(LogTemp,Display,L"Dir : %s",*EnumToString)
 		UE_LOG(LogTemp,Display,L"HitAngle %.2f",HitAngle);
-
-		float damage = 20;
-		
-		UGameplayStatics::ApplyPointDamage(OtherActor,damage,Hit.Location,Hit,PlayerCtrl,this,nullptr);
+		//µµÅº ÆÇÁ¤
+		{
+			switch (ProjectileHitDir)
+			{
+			case EHitDir::Front:
+				if(60<HitAngle&&HitAngle<120)
+					break;
+				else
+					Damage = 0;
+				break;
+			case EHitDir::Side:
+				if(30<HitAngle&&HitAngle<150)
+					break;
+				else
+					Damage = 0;
+				break;
+			case EHitDir::Back:
+				if(10<HitAngle&&HitAngle<170)
+					break;
+				else
+					Damage = 0;
+				break;
+			case EHitDir::UpSide:
+				if(60<HitAngle&&HitAngle<120)
+					break;
+				else
+					Damage = 0;
+				break;
+			case  EHitDir::DownSide:
+				if(45<HitAngle&&HitAngle<135)
+					break;
+				else
+					Damage = 0;
+				break;
+			default:
+				break;
+			}
+		}
+		UGameplayStatics::ApplyPointDamage(OtherActor,Damage,Hit.Location,Hit,PlayerCtrl,this,nullptr);
 		Destroy();
 	}
 	else
