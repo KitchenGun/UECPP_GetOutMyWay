@@ -25,7 +25,7 @@ UCPP_M1A1MainGunSystemComponent::UCPP_M1A1MainGunSystemComponent()
 {
 	//레퍼런스 가져오기
 	ProjectileClass =ConstructorHelpers::FClassFinder<ACPP_Projectile>
-		(L"Blueprint'/Game/BP/Projectile/BP_Projectile.BP_Projectile_C'").Class;
+		(L"Blueprint'/Game/BP/Projectile/BP_ProjectileAP.BP_ProjectileAP_C'").Class;
 	ReloadTime =M1A1ReloadTime;
 }
 

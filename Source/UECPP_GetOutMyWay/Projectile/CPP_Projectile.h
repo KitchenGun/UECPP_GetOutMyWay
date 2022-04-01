@@ -28,14 +28,22 @@ public:
 		PlayerCtrl = playerCtrl;
 	}
 	
-	
 protected:
 	virtual void BeginPlay() override;
 
-    virtual float GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitiveComponent* OtherComp, const FHitResult& Hit);
-private:
-	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+    float GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitiveComponent* OtherComp, const FHitResult& Hit);
+
+	virtual void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+protected:
+	//데미지
+	float Damage = 20.0f;
+	//발사정보
+	FString ObjName;
+	AController* PlayerCtrl = nullptr;
+	//피격 방향
+	EHitDir ProjectileHitDir = EHitDir::Max;
+
+	TSubclassOf<UDamageType> DamageType = nullptr;
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 	class UCapsuleComponent* Capsule;
@@ -46,19 +54,7 @@ private:
 	UPROPERTY(VisibleDefaultsOnly)
 	class UStaticMeshComponent* Effect;
 	//방향
-	EHitDir ProjectileHitDir = EHitDir::Max;
 	FVector StartPos=FVector::ZeroVector;
-	//데미지
-	float Damage = 20.0f;
-	
-	//발사정보
-	FString ObjName;
-	AController* PlayerCtrl = nullptr;
-
 	
 	class UProjectileMovementComponent* ProjectileMovement;
-
-
-	
-	
 };

@@ -314,7 +314,7 @@ void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 		else
 		{//회전 방향의 남은 각도와 사용자가 바라보는 각도와 보간
 			TurretAngle=FMath::FInterpTo(TurretAngle,SightRotator.Yaw-180.0f,DeltaTime,TurretTurnSpeed);
-		}
+		} 
 	}
 
 }

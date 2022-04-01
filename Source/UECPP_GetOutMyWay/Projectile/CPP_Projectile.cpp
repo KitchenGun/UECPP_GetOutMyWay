@@ -127,59 +127,7 @@ float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitive
 void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                             FVector NormalImpulse, const FHitResult& Hit)
 {//상속 받은 다음 충돌시 결과를 다르게 보내는 것으로 여러 탄종을 구현할려고 함
-	if(Cast<ACPP_Tank_Pawn>(OtherActor))
-	{
-		float HitAngle = GetHitAngle(HitComponent,OtherComp,Hit);
-		const UEnum* DirEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EHitDir"), true);
-
-		FString EnumToString = DirEnum->GetNameStringByValue((int64)ProjectileHitDir);
-		UE_LOG(LogTemp,Display,L"Dir : %s",*EnumToString)
-		UE_LOG(LogTemp,Display,L"HitAngle %.2f",HitAngle);
-		//도탄 판정
-		{
-			switch (ProjectileHitDir)
-			{
-			case EHitDir::Front:
-				if(60<HitAngle&&HitAngle<120)
-					break;
-				else
-					Damage = 0;
-				break;
-			case EHitDir::Side:
-				if(30<HitAngle&&HitAngle<150)
-					break;
-				else
-					Damage = 0;
-				break;
-			case EHitDir::Back:
-				if(10<HitAngle&&HitAngle<170)
-					break;
-				else
-					Damage = 0;
-				break;
-			case EHitDir::UpSide:
-				if(60<HitAngle&&HitAngle<120)
-					break;
-				else
-					Damage = 0;
-				break;
-			case  EHitDir::DownSide:
-				if(45<HitAngle&&HitAngle<135)
-					break;
-				else
-					Damage = 0;
-				break;
-			default:
-				break;
-			}
-		}
-		UGameplayStatics::ApplyPointDamage(OtherActor,Damage,Hit.Location,Hit,PlayerCtrl,this,nullptr);
-		Destroy();
-	}
-	else
-	{
-		//지면 충돌 파티클 생성
-	}
+	
 	Destroy();
 }
 

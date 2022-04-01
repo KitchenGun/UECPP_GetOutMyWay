@@ -16,7 +16,7 @@ public:
 	
 	void MainGunFire() override;
 protected:
-	void BeginPlay() override;
+	virtual void BeginPlay() override;
 private:
 	class ACPP_Tank_Pawn* Owner;
 	float M1A1ReloadTime =0.1f;
