@@ -259,8 +259,8 @@ void UCPP_TankPawnMovementComponent::RPMControl()
 
 void UCPP_TankPawnMovementComponent::UpdateTurretState(float DeltaTime)
 {
-	SightRotator = Owner->GetController()->GetControlRotation().Quaternion().Rotator().GetEquivalentRotator();
-	TurretRotator = TankMesh->GetBoneQuaternion(L"turret_jnt").Rotator().GetEquivalentRotator();
+	SightRotator = Owner->GetController()->GetControlRotation().Quaternion().Rotator()+FRotator(0,180,0);
+	TurretRotator = TankMesh->GetBoneQuaternion(L"turret_jnt").Rotator()+FRotator(0,180,0);
 	if (!FMath::IsNearlyZero(SightRotator.Yaw-TurretRotator.Yaw,0.1f))
 	{
 		//포탑회전 관련 사운드 함수 호출
@@ -302,7 +302,8 @@ void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 		}
 		else
 		{//회전 방향의 남은 각도와 사용자가 바라보는 각도와 보간
-			TurretAngle=FMath::FInterpTo(TurretAngle,SightRotator.Yaw-180.0f,DeltaTime,TurretTurnSpeed);
+			TurretAngle=FMath::RInterpTo(FRotator(0,TurretAngle,0),
+				SightRotator-FRotator(0,180,0),DeltaTime,TurretTurnSpeed).Yaw;
 		}
 	}
 	else if(LeftAngle>RightAngle)
@@ -313,10 +314,10 @@ void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 		}
 		else
 		{//회전 방향의 남은 각도와 사용자가 바라보는 각도와 보간
-			TurretAngle=FMath::FInterpTo(TurretAngle,SightRotator.Yaw-180.0f,DeltaTime,TurretTurnSpeed);
+			TurretAngle=FMath::RInterpTo(FRotator(0,TurretAngle,0),
+				SightRotator-FRotator(0,180,0),DeltaTime,TurretTurnSpeed).Yaw;
 		} 
 	}
-
 }
 
 void UCPP_TankPawnMovementComponent::UpdateGunState(float DeltaTime)
