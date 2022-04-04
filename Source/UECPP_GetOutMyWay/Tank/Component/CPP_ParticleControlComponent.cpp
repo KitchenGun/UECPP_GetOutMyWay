@@ -14,7 +14,6 @@ void UCPP_ParticleControlComponent::BeginPlay()
 	MuzzleFlashEffect = OwnerTank->GetMuzzleFlashEffect();
 	ShockWaveEffect = OwnerTank->GetShockWaveEffect();
 	WheelsEffect = OwnerTank->GetWheelsEffect();
-	
 }
 
 bool UCPP_ParticleControlComponent::OnWheelParticle(bool IsMove)
@@ -76,4 +75,7 @@ void UCPP_ParticleControlComponent::OnFireParticle()
 	}
 	
 }
+
+
+
 

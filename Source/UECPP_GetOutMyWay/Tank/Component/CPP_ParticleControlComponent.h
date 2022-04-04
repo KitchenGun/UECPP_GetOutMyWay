@@ -16,6 +16,7 @@ public:
 	
 	bool OnWheelParticle(bool IsMove);
 	void OnFireParticle();
+	
 protected:
 	virtual void BeginPlay() override;
 	
