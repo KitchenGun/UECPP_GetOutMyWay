@@ -302,8 +302,10 @@ void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 		}
 		else
 		{//회전 방향의 남은 각도와 사용자가 바라보는 각도와 보간
-			TurretAngle=FMath::RInterpTo(FRotator(0,TurretAngle,0),
-				SightRotator-FRotator(0,180,0),DeltaTime,TurretTurnSpeed).Yaw;
+			FRotator temp = FMath::RInterpTo(FRotator(0,TurretAngle,0),
+				FRotator(0,SightRotator.Yaw,0)-FRotator(0,180,0),DeltaTime,TurretTurnSpeed);
+			
+			TurretAngle=temp.Yaw;
 		}
 	}
 	else if(LeftAngle>RightAngle)
@@ -313,10 +315,12 @@ void UCPP_TankPawnMovementComponent::TurretMove(float DeltaTime)
 			TurretAngle = TurretAngle+(DeltaTime*TurretTurnSpeed);//크기가 작은쪽으로 회전
 		}
 		else
-		{//회전 방향의 남은 각도와 사용자가 바라보는 각도와 보간
-			TurretAngle=FMath::RInterpTo(FRotator(0,TurretAngle,0),
-				SightRotator-FRotator(0,180,0),DeltaTime,TurretTurnSpeed).Yaw;
-		} 
+		{
+			//회전 방향의 남은 각도와 사용자가 바라보는 각도와 보간
+			FRotator temp = FMath::RInterpTo(FRotator(0,TurretAngle,0),
+				FRotator(0,SightRotator.Yaw,0)-FRotator(0,180,0),DeltaTime,TurretTurnSpeed);
+			TurretAngle=temp.Yaw;
+		}
 	}
 }
 
