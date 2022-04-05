@@ -18,5 +18,5 @@ class UECPP_GETOUTMYWAY_API ICPP_ProjectileDamageType
 
 public:
 	UFUNCTION()
-	virtual void BounceCal(float hitAngle,EHitDir hitDir) = 0;
+	virtual void BounceCal(float hitAngle,EHitDir hitDir) PURE_VIRTUAL(ICPP_ProjectileDamageType::BounceCal,);
 };

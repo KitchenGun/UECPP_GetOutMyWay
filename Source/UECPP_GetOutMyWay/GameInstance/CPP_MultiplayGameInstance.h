@@ -13,7 +13,7 @@ public:
 	UCPP_MultiplayGameInstance();
 
 protected:
-	//virtual void Init() override;
+	virtual void Init() override;
 	
 	
 };
