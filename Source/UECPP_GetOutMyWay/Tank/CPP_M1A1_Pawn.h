@@ -19,6 +19,7 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void Dead() override;
 private:
 	//Setup
 	void ParameterSet();
@@ -28,5 +29,6 @@ private:
 	void ParticleSet();
 	void SoundSet();
 
+	
 	
 };

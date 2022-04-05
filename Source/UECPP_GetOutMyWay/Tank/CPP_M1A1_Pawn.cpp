@@ -18,7 +18,9 @@
 #include "Component/CPP_TankPawnMovementComponent.h"
 #include "Component/CPP_M1A1MainGunSystemComponent.h"
 #include "Component/CPP_ParticleControlComponent.h"
+#include "Engine/AssetManager.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Materials/MaterialInstanceConstant.h"
 
 
 ACPP_M1A1_Pawn::ACPP_M1A1_Pawn()
@@ -91,6 +93,13 @@ void ACPP_M1A1_Pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("EngineBreak", IE_Released, this, &ACPP_M1A1_Pawn::OffEngineBreak);
 	PlayerInputComponent->BindAction("ViewChange",IE_Pressed,this,&ACPP_M1A1_Pawn::CamChange);
 	PlayerInputComponent->BindAction("Fire",IE_Pressed,this,&ACPP_M1A1_Pawn::OnMainGunFire);
+}
+
+void ACPP_M1A1_Pawn::Dead()
+{
+	Super::Dead();
+	UMaterialInstanceConstant* DamageMat = Cast<UMaterialInstanceConstant>(UAssetManager::GetStreamableManager().LoadSynchronous(FSoftObjectPath(L"MaterialInstanceConstant'/Game/VigilanteContent/Vehicles/West_Tank_M1A1Abrams/Damaged/Materials/MI_West_Tank_M1A1Abrams_Damaged.MI_West_Tank_M1A1Abrams_Damaged'")));
+	TankMesh->SetMaterial(0,DamageMat);
 }
 
 void ACPP_M1A1_Pawn::ParameterSet()

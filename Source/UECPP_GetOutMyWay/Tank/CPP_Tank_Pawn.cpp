@@ -215,6 +215,12 @@ void ACPP_Tank_Pawn::TurretMoveEnd()
 	}
 }
 
+void ACPP_Tank_Pawn::Dead()
+{
+	IsDead =true;
+}
+
+
 void ACPP_Tank_Pawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -229,6 +235,12 @@ float ACPP_Tank_Pawn::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	AActor* DamageCauser)
 {
 	HP-=DamageAmount;
+
+	if(!IsDead&&HP<=0)
+	{
+		Dead();
+	}
+	
 	UE_LOG(LogTemp,Display,L"%.2f",HP);
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }

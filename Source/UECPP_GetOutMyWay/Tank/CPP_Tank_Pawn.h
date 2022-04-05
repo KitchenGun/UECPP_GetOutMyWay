@@ -134,6 +134,10 @@ protected:
 	virtual void TurretMoveLoop();
 	UFUNCTION()
 	virtual void TurretMoveEnd();
+
+	//Dead
+	UFUNCTION()
+	virtual void Dead();
 	
 protected:
 	//////////////////////////////tank 파라미터 변수/////////////////////////////////////////
@@ -174,4 +178,5 @@ protected:
 	//Damage
 	float MAX_HP = 100;
 	float HP = MAX_HP;
+	bool IsDead = false;
 };
