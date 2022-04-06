@@ -1,5 +1,6 @@
 #pragma once
 #include "CoreMinimal.h"
+#include "Common/Interface/CPP_Objectpooling.h"
 #include "GameFramework/Actor.h"
 #include "CPP_Projectile.generated.h"
 
@@ -15,7 +16,7 @@ enum EHitDir
 };
 
 UCLASS()
-class UECPP_GETOUTMYWAY_API ACPP_Projectile : public AActor
+class UECPP_GETOUTMYWAY_API ACPP_Projectile : public AActor,public ICPP_Objectpooling
 {
 	GENERATED_BODY()
 	
@@ -34,6 +35,8 @@ protected:
     float GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitiveComponent* OtherComp, const FHitResult& Hit);
 
 	virtual void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	
 protected:
 	//µ¥¹ÌÁö
 	float Damage = 20.0f;
