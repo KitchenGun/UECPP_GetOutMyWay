@@ -13,10 +13,30 @@ void UCPP_MultiplayGameInstance::BeginPlay()
 }
 
 void UCPP_MultiplayGameInstance::Init()
-{
+{//플레이 시작할때 
 	Super::Init();
 	//objectpoolmanager 저장
 	RegisterManagerClass(UCPP_ObjectPoolManager::StaticClass());
+}
+
+void UCPP_MultiplayGameInstance::Shutdown()
+{//플레이 엄출때
+	for (auto pair : ManagerClasses)
+	{
+		if(!IsValid(pair.Value))
+			return;
+		//IsValid 누군가 가리키는 오브젝트 인지?
+		//IsValidLowlevel,Fast 현재 레벨에 남아있는지?
+		if (!pair.Value->IsValidLowLevel()) return;
+		
+		pair.Value->ShutdownManagerClass();
+
+		// 객체 소멸
+		pair.Value->ConditionalBeginDestroy();
+	}
+	ManagerClasses.Empty();
+	
+	Super::Shutdown();
 }
 
 void UCPP_MultiplayGameInstance::RegisterManagerClass(TSubclassOf<UCPP_UManagerClass> managerClass)

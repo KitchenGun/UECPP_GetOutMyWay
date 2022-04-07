@@ -28,4 +28,5 @@ public :
 	//√ ±‚»≠
 	virtual void BeginPlay() override;
 	virtual void InitManagerClass() override;
+	virtual void ShutdownManagerClass() override;
 };

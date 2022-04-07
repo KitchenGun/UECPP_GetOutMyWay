@@ -28,6 +28,16 @@ public:
 		ObjName=objName;
 		PlayerCtrl = playerCtrl;
 	}
+
+	//objectpooling 기법
+	//ID를 가지고 객체 구분에 필요한 함수
+	virtual int32 GetID() const override;
+	virtual void SetID(int32 id) override;
+	//재사용 가능 여부 나타내는 함수
+	virtual bool GetCanRecycle(int32 id) const override;
+	virtual void SetCanRecycle(bool value);
+	//재활용시 호출되는 함수
+	virtual void OnRecycleStart();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -36,7 +46,6 @@ protected:
 
 	virtual void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-	
 protected:
 	//데미지
 	float Damage = 20.0f;
@@ -47,6 +56,8 @@ protected:
 	EHitDir ProjectileHitDir = EHitDir::Max;
 
 	TSubclassOf<UDamageType> DamageType = nullptr;
+
+	
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 	class UCapsuleComponent* Capsule;
@@ -60,4 +71,6 @@ private:
 	FVector StartPos=FVector::ZeroVector;
 	
 	class UProjectileMovementComponent* ProjectileMovement;
+
+	int32 ObjectPoolID = 0;
 };

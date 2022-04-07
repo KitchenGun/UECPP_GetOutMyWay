@@ -11,5 +11,6 @@ class UECPP_GETOUTMYWAY_API UCPP_UManagerClass : public UObject
 public:
 
 	FORCEINLINE virtual void InitManagerClass() {};
+	FORCEINLINE virtual void ShutdownManagerClass() {};
 	FORCEINLINE virtual void BeginPlay() {};
 };

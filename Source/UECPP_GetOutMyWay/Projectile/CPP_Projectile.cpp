@@ -55,6 +55,33 @@ ACPP_Projectile::ACPP_Projectile()
 	ProjectileMovement->InitialSpeed = 1e+4f;
 	ProjectileMovement->MaxSpeed = 1e+4f;
 	ProjectileMovement->ProjectileGravityScale = 0;
+	
+}
+
+int32 ACPP_Projectile::GetID() const
+{
+	return ObjectPoolID;
+}
+
+void ACPP_Projectile::SetID(int32 id)
+{
+	ObjectPoolID = id;
+}
+
+bool ACPP_Projectile::GetCanRecycle(int32 id) const
+{
+	//충돌체와 매쉬가 활성화 중이면 아래와 false 반환
+	return (Capsule->IsCollisionEnabled()&&Capsule->IsVisible()?false:true);
+}
+
+void ACPP_Projectile::SetCanRecycle(bool value)
+{
+	ICPP_Objectpooling::SetCanRecycle(value);
+}
+
+void ACPP_Projectile::OnRecycleStart()
+{
+	ICPP_Objectpooling::OnRecycleStart();
 }
 
 void ACPP_Projectile::BeginPlay()

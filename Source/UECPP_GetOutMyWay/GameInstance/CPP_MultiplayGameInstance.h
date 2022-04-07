@@ -14,9 +14,13 @@ public:
 	UCPP_MultiplayGameInstance();
 
 	void BeginPlay();
+
+	template<typename ManagerClassType>
+	FORCEINLINE ManagerClassType* GetManagerClass()
+	{return Cast<ManagerClassType>(ManagerClasses[ManagerClassType::StaticClass()->GetName()]);}
 protected:
 	virtual void Init() override;
-
+	virtual void Shutdown() override;
 	
 	void RegisterManagerClass(TSubclassOf<UCPP_UManagerClass> managerClass);
 

@@ -1,6 +1,11 @@
 
 #include "Common/UObject/Manager/ObjectPool/CPP_ObjectPoolManager.h"
 
+ICPP_Objectpooling* UCPP_ObjectPoolManager::GetRecycledObject(int32 objId)
+{
+	return PoolObjects[objId];
+}
+
 void UCPP_ObjectPoolManager::BeginPlay()
 {
 	Super::BeginPlay();
@@ -11,4 +16,10 @@ void UCPP_ObjectPoolManager::BeginPlay()
 void UCPP_ObjectPoolManager::InitManagerClass()
 {
 	Super::InitManagerClass();
+}
+
+void UCPP_ObjectPoolManager::ShutdownManagerClass()
+{
+	
+	Super::ShutdownManagerClass();
 }
