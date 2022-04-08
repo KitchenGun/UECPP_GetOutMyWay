@@ -3,7 +3,15 @@
 
 ICPP_Objectpooling* UCPP_ObjectPoolManager::GetRecycledObject(int32 objId)
 {
-	return PoolObjects[objId];
+	for(auto obj : PoolObjects)
+	{
+		if(obj->GetID()==objId)
+		{
+			if(obj->GetCanRecycle(objId))
+				return obj;
+		}
+	}
+	return nullptr;
 }
 
 void UCPP_ObjectPoolManager::BeginPlay()

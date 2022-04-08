@@ -25,18 +25,18 @@ ACPP_Projectile::ACPP_Projectile()
 	WarHead->SetupAttachment(Capsule);
 	Effect->SetupAttachment(Capsule);
 	//S*R*T
-	Capsule->SetRelativeRotation(FRotator(90,0,0));
+	//Capsule->SetRelativeRotation(FRotator(90,0,0));
 	Capsule->SetCapsuleHalfHeight(70);
 	Capsule->SetCapsuleRadius(20);
 	Shell->SetRelativeScale3D(FVector(10,10,10));
-	Shell->SetRelativeRotation(FRotator(0,90,-90));
-	Shell->SetRelativeLocation(FVector(0,0,20));
+	Shell->SetRelativeRotation(FRotator(0,90,90));
+	Shell->SetRelativeLocation(FVector(0,0,-10));
 	WarHead->SetRelativeScale3D(FVector(0.05f,0.05f,0.05f));
-	WarHead->SetRelativeRotation(FRotator(-90,0,0));
-	WarHead->SetRelativeLocation(FVector(0,0,-20));
+	WarHead->SetRelativeRotation(FRotator(90,180,0));
+	WarHead->SetRelativeLocation(FVector(0,0,30));
 	Effect->SetRelativeScale3D(FVector(0.4f,0.1f,0.1f));
-	Effect->SetRelativeRotation(FRotator(90,0,0));
-	Effect->SetRelativeLocation(FVector(0,0,-45));
+	Effect->SetRelativeRotation(FRotator(-90,0,0));
+	Effect->SetRelativeLocation(FVector(0,0,45));
 	//세부 설정
 	Capsule->BodyInstance.SetCollisionProfileName("BlockAll");
 	Capsule->SetNotifyRigidBodyCollision(true);
@@ -71,17 +71,41 @@ void ACPP_Projectile::SetID(int32 id)
 bool ACPP_Projectile::GetCanRecycle(int32 id) const
 {
 	//충돌체와 매쉬가 활성화 중이면 아래와 false 반환
-	return (Capsule->IsCollisionEnabled()&&Capsule->IsVisible()?false:true);
+	return IsCanRecycle;
 }
 
 void ACPP_Projectile::SetCanRecycle(bool value)
 {
-	ICPP_Objectpooling::SetCanRecycle(value);
+	IsCanRecycle = value;
 }
 
 void ACPP_Projectile::OnRecycleStart()
 {
-	ICPP_Objectpooling::OnRecycleStart();
+	//상태 킴
+	SetActorHiddenInGame(false);
+	SetCanRecycle(false);
+	//capsule이 회전되어 있어서 이렇게 변경해서 사용함 -> -Capsule->GetUpVector()
+	ProjectileMovement->Velocity = Capsule->GetForwardVector()*ProjectileMovement->InitialSpeed;
+	StartPos = this->GetActorLocation();
+	InitialLifeSpan = 5.0f;
+}
+
+void ACPP_Projectile::OnRecycleStart(FVector pos, FRotator dir)
+{
+	FTransform Transform;
+	Transform.SetLocation(pos);
+	Transform.SetRotation(FQuat(dir));
+	UE_LOG(LogTemp,Display,L"%s",*Transform.Rotator().ToString());
+	SetActorTransform(Transform);
+	OnRecycleStart();
+}
+
+
+void ACPP_Projectile::Disable()
+{
+	//상태 정지
+	SetActorHiddenInGame(true);
+	SetCanRecycle(true);
 }
 
 void ACPP_Projectile::BeginPlay()
@@ -92,6 +116,7 @@ void ACPP_Projectile::BeginPlay()
 	StartPos = this->GetActorLocation();
 	ProjectileMovement->Velocity = -Capsule->GetUpVector()*ProjectileMovement->InitialSpeed;
 	InitialLifeSpan = 5.0f;
+	UE_LOG(LogTemp,Display,L"%s",*GetActorRotation().ToString());
 }
 
 float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitiveComponent* OtherComp,
@@ -154,8 +179,7 @@ float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitive
 void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                             FVector NormalImpulse, const FHitResult& Hit)
 {//상속 받은 다음 충돌시 결과를 다르게 보내는 것으로 여러 탄종을 구현할려고 함
-	
-	Destroy();
+	Disable();
 }
 
 

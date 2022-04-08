@@ -38,7 +38,8 @@ public:
 	virtual void SetCanRecycle(bool value);
 	//재활용시 호출되는 함수
 	virtual void OnRecycleStart();
-	
+	void OnRecycleStart(FVector pos,FRotator dir);
+	virtual void Disable();
 protected:
 	virtual void BeginPlay() override;
 
@@ -72,5 +73,7 @@ private:
 	
 	class UProjectileMovementComponent* ProjectileMovement;
 
+	//Objectpool
 	int32 ObjectPoolID = 0;
+	bool IsCanRecycle = false;
 };
