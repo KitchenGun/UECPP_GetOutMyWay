@@ -12,6 +12,7 @@
 ACPP_Projectile::ACPP_Projectile()
 {
 	//생성
+	Root = CreateDefaultSubobject<USceneComponent>(L"Root");
 	Capsule = CreateDefaultSubobject<UCapsuleComponent>(L"Collider");
 	Shell = CreateDefaultSubobject<UStaticMeshComponent>(L"Shell");
 	WarHead = CreateDefaultSubobject<UStaticMeshComponent>(L"WarHead");
@@ -21,11 +22,13 @@ ACPP_Projectile::ACPP_Projectile()
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(L"ProjectileMovement");
 
 	//상속구조 정리
+	SetRootComponent(Root);
+	Capsule->SetupAttachment(Root);
 	Shell->SetupAttachment(Capsule);
 	WarHead->SetupAttachment(Capsule);
 	Effect->SetupAttachment(Capsule);
 	//S*R*T
-	//Capsule->SetRelativeRotation(FRotator(90,0,0));
+	Capsule->SetRelativeRotation(FRotator(-90,0,0));
 	Capsule->SetCapsuleHalfHeight(70);
 	Capsule->SetCapsuleRadius(20);
 	Shell->SetRelativeScale3D(FVector(10,10,10));
@@ -51,7 +54,6 @@ ACPP_Projectile::ACPP_Projectile()
 	ConstructorHelpers::FObjectFinder<UStaticMesh> effectMesh(L"StaticMesh'/Game/VigilanteContent/Shared/Particles/StaticMeshes/SM_RocketBooster_03_SM.SM_RocketBooster_03_SM'");
 	Effect->SetStaticMesh(effectMesh.Object);
 	Effect->BodyInstance.SetCollisionProfileName("NoCollision");
-	
 	ProjectileMovement->InitialSpeed = 1e+4f;
 	ProjectileMovement->MaxSpeed = 1e+4f;
 	ProjectileMovement->ProjectileGravityScale = 0;
@@ -82,10 +84,13 @@ void ACPP_Projectile::SetCanRecycle(bool value)
 void ACPP_Projectile::OnRecycleStart()
 {
 	//상태 킴
-	SetActorHiddenInGame(false);
+	Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Shell->SetVisibility(true);
+	WarHead->SetVisibility(true);
+	Effect->SetVisibility(true);
 	SetCanRecycle(false);
 	//capsule이 회전되어 있어서 이렇게 변경해서 사용함 -> -Capsule->GetUpVector()
-	ProjectileMovement->Velocity = Capsule->GetForwardVector()*ProjectileMovement->InitialSpeed;
+	ProjectileMovement->Velocity = Capsule->GetUpVector()*ProjectileMovement->InitialSpeed;
 	StartPos = this->GetActorLocation();
 	InitialLifeSpan = 5.0f;
 }
@@ -104,7 +109,10 @@ void ACPP_Projectile::OnRecycleStart(FVector pos, FRotator dir)
 void ACPP_Projectile::Disable()
 {
 	//상태 정지
-	SetActorHiddenInGame(true);
+	Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Shell->SetVisibility(false);
+	WarHead->SetVisibility(false);
+	Effect->SetVisibility(false);
 	SetCanRecycle(true);
 }
 
@@ -114,7 +122,7 @@ void ACPP_Projectile::BeginPlay()
 	Capsule->OnComponentHit.AddDynamic(this, &ACPP_Projectile::OnHit);
 	//capsule이 회전되어 있어서 이렇게 변경해서 사용함 -> -Capsule->GetUpVector()
 	StartPos = this->GetActorLocation();
-	ProjectileMovement->Velocity = -Capsule->GetUpVector()*ProjectileMovement->InitialSpeed;
+	ProjectileMovement->Velocity = Capsule->GetUpVector()*ProjectileMovement->InitialSpeed;
 	InitialLifeSpan = 5.0f;
 	UE_LOG(LogTemp,Display,L"%s",*GetActorRotation().ToString());
 }

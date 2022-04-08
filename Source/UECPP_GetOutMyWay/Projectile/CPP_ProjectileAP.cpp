@@ -1,5 +1,6 @@
 #include "Projectile/CPP_ProjectileAP.h"
 
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Tank/CPP_Tank_Pawn.h"
 
@@ -46,7 +47,7 @@ void ACPP_ProjectileAP::BounceCal(float hitAngle, EHitDir hitDir)
 void ACPP_ProjectileAP::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
-	if(Cast<ACPP_Tank_Pawn>(OtherActor))
+	if(Cast<ACPP_Tank_Pawn>(OtherActor)&&Cast<UBoxComponent>(OtherComp))
 	{
 		//포탄의 입사각 계산
 		float HitAngle = GetHitAngle(HitComponent,OtherComp,Hit);
@@ -54,9 +55,6 @@ void ACPP_ProjectileAP::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAc
 		const UEnum* DirEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EHitDir"), true);
 		FString EnumToString = DirEnum->GetNameStringByValue((int64)ProjectileHitDir);
 	
-		UE_LOG(LogTemp,Display,L"Dir : %s",*EnumToString)
-		UE_LOG(LogTemp,Display,L"HitAngle %.2f",HitAngle);
-			
 		//도탄 판정
 		BounceCal(HitAngle,ProjectileHitDir);
 		//데미지 주기

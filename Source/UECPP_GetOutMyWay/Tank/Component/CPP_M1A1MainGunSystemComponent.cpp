@@ -38,9 +38,7 @@ void UCPP_M1A1MainGunSystemComponent::MainGunFire()
 		if(ProjectileClass)
 		{
 			FVector SpawnPos	= TankMesh->GetSocketLocation("gun_1_jntSocket");
-			FRotator Direction   = Owner->GetController()->GetControlRotation().Quaternion().Rotator();
-			//FRotator(TankMesh->GetSocketRotation("gun_1_jntSocket"));
-			////TankMesh->GetSocketRotation("gun_1_jntSocket").Pitch,TankMesh->GetSocketRotation("gun_1_jntSocket").Yaw,0);
+			FRotator Direction   = Owner->GetController()->GetControlRotation();
 
 			UCPP_ObjectPoolManager* ObjPoolManager = Cast<UCPP_MultiplayGameInstance>(Owner->GetGameInstance())->GetManagerClass<UCPP_ObjectPoolManager>();
 			ACPP_Projectile* temp;
@@ -52,7 +50,6 @@ void UCPP_M1A1MainGunSystemComponent::MainGunFire()
 			}
 			else
 			{//없으면 새로 생성
-				UE_LOG(LogTemp,Display,L"%s",*Direction.ToString());
 				temp = GetWorld()->SpawnActor<ACPP_Projectile>(ProjectileClass,SpawnPos,Direction);
 				//매니져에 새로 생성한 객체 추가
 				ObjPoolManager->RegisterRecyclableObject<ACPP_Projectile>(temp);

@@ -61,6 +61,8 @@ protected:
 	
 private:
 	UPROPERTY(VisibleDefaultsOnly)
+	class USceneComponent* Root;
+	UPROPERTY(VisibleDefaultsOnly)
 	class UCapsuleComponent* Capsule;
 	UPROPERTY(VisibleDefaultsOnly)
 	class UStaticMeshComponent* Shell;

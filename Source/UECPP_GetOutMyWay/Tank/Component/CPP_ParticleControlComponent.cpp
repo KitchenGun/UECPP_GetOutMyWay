@@ -47,7 +47,7 @@ void UCPP_ParticleControlComponent::OnFireParticle()
 	TArray<FHitResult> HitResults;
 	TArray<AActor*> ImpactArray;
 	float blastRange = 1000;
-	float ShockWaveForce=1e+3;
+	float ShockWaveForce=1e+2;
 	//포 발사에 따른 충격파 구현
 	const bool Hit =
 		UKismetSystemLibrary::SphereTraceMulti(GetWorld(),Start,End,blastRange,
