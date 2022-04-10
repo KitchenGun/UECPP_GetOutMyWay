@@ -72,7 +72,7 @@ private:
 	class UStaticMeshComponent* Effect;
 	//πÊ«‚
 	FVector StartPos=FVector::ZeroVector;
-	
+	UPROPERTY(VisibleDefaultsOnly)
 	class UProjectileMovementComponent* ProjectileMovement;
 
 	//Objectpool

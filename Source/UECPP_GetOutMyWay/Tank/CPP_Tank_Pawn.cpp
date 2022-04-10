@@ -224,6 +224,9 @@ void ACPP_Tank_Pawn::Dead()
 void ACPP_Tank_Pawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	//Turret Collider 위치 변환 탱크 포탑에 충돌체 같이 움직이기 위해서
+	Turret->SetWorldLocation(TankMesh->GetSocketLocation("turret_jntSocket"));
+	Turret->SetWorldRotation(TankMesh->GetSocketRotation("turret_jntSocket"));
 }
 
 void ACPP_Tank_Pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

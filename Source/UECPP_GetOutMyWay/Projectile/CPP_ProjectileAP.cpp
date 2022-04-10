@@ -59,6 +59,7 @@ void ACPP_ProjectileAP::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAc
 		BounceCal(HitAngle,ProjectileHitDir);
 		//데미지 주기
 		UGameplayStatics::ApplyPointDamage(OtherActor,Damage,Hit.Location,Hit,PlayerCtrl,this,nullptr);
+		Disable();
 	}
 	//삭제	
 	Super::OnHit(HitComponent, OtherActor, OtherComp, NormalImpulse, Hit);

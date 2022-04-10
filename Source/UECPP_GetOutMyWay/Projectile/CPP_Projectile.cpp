@@ -54,8 +54,8 @@ ACPP_Projectile::ACPP_Projectile()
 	ConstructorHelpers::FObjectFinder<UStaticMesh> effectMesh(L"StaticMesh'/Game/VigilanteContent/Shared/Particles/StaticMeshes/SM_RocketBooster_03_SM.SM_RocketBooster_03_SM'");
 	Effect->SetStaticMesh(effectMesh.Object);
 	Effect->BodyInstance.SetCollisionProfileName("NoCollision");
-	ProjectileMovement->InitialSpeed = 1e+4f;
-	ProjectileMovement->MaxSpeed = 1e+4f;
+	ProjectileMovement->InitialSpeed = 5e+3f;
+	ProjectileMovement->MaxSpeed = 5e+3f;
 	ProjectileMovement->ProjectileGravityScale = 0;
 	
 }
@@ -93,6 +93,7 @@ void ACPP_Projectile::OnRecycleStart()
 	ProjectileMovement->Velocity = Capsule->GetUpVector()*ProjectileMovement->InitialSpeed;
 	StartPos = this->GetActorLocation();
 	InitialLifeSpan = 5.0f;
+	ProjectileMovement->SetComponentTickEnabled(true);
 }
 
 void ACPP_Projectile::OnRecycleStart(FVector pos, FRotator dir)
@@ -100,7 +101,6 @@ void ACPP_Projectile::OnRecycleStart(FVector pos, FRotator dir)
 	FTransform Transform;
 	Transform.SetLocation(pos);
 	Transform.SetRotation(FQuat(dir));
-	UE_LOG(LogTemp,Display,L"%s",*Transform.Rotator().ToString());
 	SetActorTransform(Transform);
 	OnRecycleStart();
 }
@@ -113,6 +113,7 @@ void ACPP_Projectile::Disable()
 	Shell->SetVisibility(false);
 	WarHead->SetVisibility(false);
 	Effect->SetVisibility(false);
+	ProjectileMovement->SetComponentTickEnabled(false);
 	SetCanRecycle(true);
 }
 
@@ -124,7 +125,6 @@ void ACPP_Projectile::BeginPlay()
 	StartPos = this->GetActorLocation();
 	ProjectileMovement->Velocity = Capsule->GetUpVector()*ProjectileMovement->InitialSpeed;
 	InitialLifeSpan = 5.0f;
-	UE_LOG(LogTemp,Display,L"%s",*GetActorRotation().ToString());
 }
 
 float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitiveComponent* OtherComp,

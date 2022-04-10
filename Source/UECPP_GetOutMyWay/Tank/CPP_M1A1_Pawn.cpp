@@ -181,6 +181,7 @@ void ACPP_M1A1_Pawn::CollisionSet()
 	RSide->SetRelativeRotation(FRotator(-3, 0, 0));
 	RSide->SetBoxExtent(FVector(330, 20, 60));
 	RSide->SetCollisionProfileName("PhysicsActor");
+	
 	Turret->SetRelativeLocation(FVector(0,0,110));
 	Turret->SetBoxExtent(FVector(200,160,50));
 	Turret->SetCollisionProfileName("PhysicsActor");
