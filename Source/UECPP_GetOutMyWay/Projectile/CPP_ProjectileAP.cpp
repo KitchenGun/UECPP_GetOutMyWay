@@ -5,7 +5,8 @@
 #include "Tank/CPP_Tank_Pawn.h"
 
 void ACPP_ProjectileAP::BounceCal(float hitAngle, EHitDir hitDir)
-{//AP탄으로 도탄여부 계산  데미지가 1이면 도탄 
+{//AP탄으로 도탄여부 계산  데미지가 1이면 도탄
+	UE_LOG(LogTemp,Display,L"%.2f",hitAngle);
 	switch (ProjectileHitDir)
 	{
 	case EHitDir::Front:
@@ -53,9 +54,11 @@ void ACPP_ProjectileAP::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		//포탄의 입사각 계산
 		float HitAngle = GetHitAngle(OtherComp,SweepResult);
 		
+		UE_LOG(LogTemp,Display,L"angle %.2f",HitAngle);
 		const UEnum* DirEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EHitDir"), true);
 		FString EnumToString = DirEnum->GetNameStringByValue((int64)ProjectileHitDir);
-		
+
+		UE_LOG(LogTemp,Display,L"%s",*EnumToString);
 		//도탄 판정
 		BounceCal(HitAngle,ProjectileHitDir);
 		//데미지 주기

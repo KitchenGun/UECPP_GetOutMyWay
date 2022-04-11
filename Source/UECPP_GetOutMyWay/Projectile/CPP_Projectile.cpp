@@ -133,12 +133,41 @@ float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* OtherComp,const FHitResu
 {
 	//이름
 	UE_LOG(LogTemp,Display,L"%s",*OtherComp->GetName());
+	//SphereTraceMulti를 사용해서 overlap에서 구할수없는 hit pos를 구함
+	FVector HitPos =FVector::ZeroVector;
+	{
+		const FVector start=GetActorLocation();
+		const FVector end=OtherComp->GetComponentLocation();
+		TArray<AActor*> ignore;
+		TArray<FHitResult> HitResults;
+		TArray<AActor*> HitArray;
+		float Range = 50;
+		
+		//충돌 위치 반환
+		const bool isHit =
+			UKismetSystemLibrary::LineTraceMulti(GetWorld(),start,end,
+				ETraceTypeQuery::TraceTypeQuery19,false,ignore,EDrawDebugTrace::ForOneFrame,HitResults,true);
+
+		if(isHit)
+		{
+			for(auto temp : HitResults)
+			{
+				if(Cast<ACPP_Tank_Pawn>(temp.GetActor())&&Cast<UBoxComponent>(OtherComp))
+				{
+					HitPos = temp.ImpactPoint;
+					break;
+				}
+			}
+		}
+	}
+	
 	//debug 용
-	DrawDebugSphere(GetWorld(),Hit.ImpactPoint,50,20,FColor::Yellow,true,1,0,2);
+	//DrawDebugSphere(GetWorld(),HitPos,50,20,FColor::Yellow,true,1,0,2);
 	//맞은 부위 판별용
 	FVector compScale =Cast<UBoxComponent>(OtherComp)->GetScaledBoxExtent();
 	//InverseTransform
-	FVector HitPosInverseTransform =UKismetMathLibrary::InverseTransformLocation(OtherComp->GetComponentTransform(),Hit.ImpactPoint);
+	FVector HitPosInverseTransform =UKismetMathLibrary::InverseTransformLocation(OtherComp->GetComponentTransform(),HitPos);
+	UE_LOG(LogTemp,Display,L"hitpos %s",*HitPosInverseTransform.ToString());
 
 
 	//충돌된 컴포넌트의 방향 벡터
@@ -150,24 +179,24 @@ float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* OtherComp,const FHitResu
 		ProjectileHitDir = EHitDir::Side;
 		HitObjVec = OtherComp->GetComponentRotation().Vector();
 	}
-	else if(FMath::IsNearlyEqual(HitPosInverseTransform.X,compScale.X))
+	else if(FMath::IsNearlyEqual(HitPosInverseTransform.X,compScale.X,0.1f))
 	{
 		ProjectileHitDir = EHitDir::Front;
 		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(0,90.0f,0)).Vector();
 	}
-	else if(FMath::IsNearlyEqual(HitPosInverseTransform.X,-compScale.X))
+	else if(FMath::IsNearlyEqual(HitPosInverseTransform.X,-compScale.X,0.1f))
 	{
 		ProjectileHitDir = EHitDir::Back;
-		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(0,180.0f,0)).Vector();
+		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(0,-90.0f,0)).Vector();
 	}
-	else if(FMath::IsNearlyEqual(HitPosInverseTransform.Z,compScale.Z))
+	else if(FMath::IsNearlyEqual(HitPosInverseTransform.Z,compScale.Z,0.1f))
 	{
 		ProjectileHitDir = EHitDir::UpSide;
 		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(90.0f,0,0)).Vector();
 	}
 	else 
 	{
-		ProjectileHitDir = EHitDir::Back;
+		ProjectileHitDir = EHitDir::DownSide;
 		HitObjVec = (OtherComp->GetComponentRotation()+FRotator(-90.0f,0,0)).Vector();
 	}
 	//충돌된 컴포넌트의 방향벡터 정규화
@@ -175,13 +204,12 @@ float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* OtherComp,const FHitResu
 
 
 	//충돌 방향 벡터
-	FVector HitVec = Hit.Location-StartPos;
+	FVector HitVec = GetActorLocation()-StartPos;
 	HitVec =HitVec.GetSafeNormal();
 
 	//두벡터의 세타를 구해야함
 	float angle =FMath::Acos(FVector::DotProduct(HitVec,HitObjVec));
 	angle = FMath::RadiansToDegrees(angle);
-
 	return angle;
 }
 
