@@ -43,25 +43,26 @@ void ACPP_ProjectileAP::BounceCal(float hitAngle, EHitDir hitDir)
 	}
 }
 
-
-void ACPP_ProjectileAP::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	FVector NormalImpulse, const FHitResult& Hit)
+void ACPP_ProjectileAP::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(Cast<ACPP_Tank_Pawn>(OtherActor)&&Cast<UBoxComponent>(OtherComp))
+	if(Cast<ACPP_Tank_Pawn>(OtherActor)&&Cast<UBoxComponent>(OtherComp)&&!IsOverlap)
 	{
+		//중복을 방지하기 위한 overlap 확인 변수
+		IsOverlap = true;
 		//포탄의 입사각 계산
-		float HitAngle = GetHitAngle(HitComponent,OtherComp,Hit);
-	
+		float HitAngle = GetHitAngle(OtherComp,SweepResult);
+		
 		const UEnum* DirEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EHitDir"), true);
 		FString EnumToString = DirEnum->GetNameStringByValue((int64)ProjectileHitDir);
-	
+		
 		//도탄 판정
 		BounceCal(HitAngle,ProjectileHitDir);
 		//데미지 주기
-		UGameplayStatics::ApplyPointDamage(OtherActor,Damage,Hit.Location,Hit,PlayerCtrl,this,nullptr);
+		UGameplayStatics::ApplyPointDamage(OtherActor,Damage,SweepResult.Location,SweepResult,PlayerCtrl,this,nullptr);
 		Disable();
 	}
 	//삭제	
-	Super::OnHit(HitComponent, OtherActor, OtherComp, NormalImpulse, Hit);
-		
+	Super::OnBeginOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 }
+

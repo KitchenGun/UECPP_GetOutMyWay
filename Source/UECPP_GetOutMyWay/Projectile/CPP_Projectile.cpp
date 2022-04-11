@@ -84,6 +84,7 @@ void ACPP_Projectile::SetCanRecycle(bool value)
 void ACPP_Projectile::OnRecycleStart()
 {
 	//상태 킴
+	IsOverlap=false;
 	Capsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Shell->SetVisibility(true);
 	WarHead->SetVisibility(true);
@@ -120,15 +121,15 @@ void ACPP_Projectile::Disable()
 void ACPP_Projectile::BeginPlay()
 {
 	Super::BeginPlay();
-	Capsule->OnComponentHit.AddDynamic(this, &ACPP_Projectile::OnHit);
+	//물리 충돌을 막기위해서 overlap 사용
+	Capsule->OnComponentBeginOverlap.AddDynamic(this,&ACPP_Projectile::OnBeginOverlap);
 	//capsule이 회전되어 있어서 이렇게 변경해서 사용함 -> -Capsule->GetUpVector()
 	StartPos = this->GetActorLocation();
 	ProjectileMovement->Velocity = Capsule->GetUpVector()*ProjectileMovement->InitialSpeed;
 	InitialLifeSpan = 5.0f;
 }
 
-float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitiveComponent* OtherComp,
-	const FHitResult& Hit)
+float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* OtherComp,const FHitResult& Hit)
 {
 	//이름
 	UE_LOG(LogTemp,Display,L"%s",*OtherComp->GetName());
@@ -184,9 +185,11 @@ float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* HitComponent, UPrimitive
 	return angle;
 }
 
-void ACPP_Projectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-                            FVector NormalImpulse, const FHitResult& Hit)
-{//상속 받은 다음 충돌시 결과를 다르게 보내는 것으로 여러 탄종을 구현할려고 함
+
+void ACPP_Projectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	//상속 받은 다음 충돌시 결과를 다르게 보내는 것으로 여러 탄종을 구현할려고 함
 	Disable();
 }
 
