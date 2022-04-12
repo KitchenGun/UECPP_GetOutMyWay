@@ -6,7 +6,6 @@
 
 void ACPP_ProjectileAP::BounceCal(float hitAngle, EHitDir hitDir)
 {//AP탄으로 도탄여부 계산  데미지가 1이면 도탄
-	UE_LOG(LogTemp,Display,L"%.2f",hitAngle);
 	switch (ProjectileHitDir)
 	{
 	case EHitDir::Front:

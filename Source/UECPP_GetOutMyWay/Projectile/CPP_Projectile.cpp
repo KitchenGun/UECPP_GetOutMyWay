@@ -54,8 +54,8 @@ ACPP_Projectile::ACPP_Projectile()
 	ConstructorHelpers::FObjectFinder<UStaticMesh> effectMesh(L"StaticMesh'/Game/VigilanteContent/Shared/Particles/StaticMeshes/SM_RocketBooster_03_SM.SM_RocketBooster_03_SM'");
 	Effect->SetStaticMesh(effectMesh.Object);
 	Effect->BodyInstance.SetCollisionProfileName("NoCollision");
-	ProjectileMovement->InitialSpeed = 5e+3f;
-	ProjectileMovement->MaxSpeed = 5e+3f;
+	ProjectileMovement->InitialSpeed = 1e+4f;
+	ProjectileMovement->MaxSpeed = 1e+4f;
 	ProjectileMovement->ProjectileGravityScale = 0;
 	
 }
@@ -144,9 +144,12 @@ float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* OtherComp,const FHitResu
 		float Range = 50;
 		
 		//충돌 위치 반환
+		//UKismetSystemLibrary::profile 충돌객체의 preset이 일치하고 있는 것만 반환함
+		//UKismetSystemLibrary::object  충돌객체의 object type이 일치하는 것만 반환함
+		//UWorld::channel 충돌객체의 channel이 일치하는 것만 반환함
 		const bool isHit =
-			UKismetSystemLibrary::LineTraceMulti(GetWorld(),start,end,
-				ETraceTypeQuery::TraceTypeQuery19,false,ignore,EDrawDebugTrace::ForOneFrame,HitResults,true);
+			UKismetSystemLibrary::LineTraceMultiByProfile(GetWorld(),start,end,
+				"TankCollider",false,ignore,EDrawDebugTrace::None,HitResults,true);
 
 		if(isHit)
 		{
@@ -161,13 +164,11 @@ float ACPP_Projectile::GetHitAngle(UPrimitiveComponent* OtherComp,const FHitResu
 		}
 	}
 	
-	//debug 용
-	//DrawDebugSphere(GetWorld(),HitPos,50,20,FColor::Yellow,true,1,0,2);
 	//맞은 부위 판별용
 	FVector compScale =Cast<UBoxComponent>(OtherComp)->GetScaledBoxExtent();
 	//InverseTransform
 	FVector HitPosInverseTransform =UKismetMathLibrary::InverseTransformLocation(OtherComp->GetComponentTransform(),HitPos);
-	UE_LOG(LogTemp,Display,L"hitpos %s",*HitPosInverseTransform.ToString());
+	
 
 
 	//충돌된 컴포넌트의 방향 벡터
